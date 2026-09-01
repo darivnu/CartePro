@@ -1,3 +1,10 @@
+//
+// EPITECH PROJECT, 2026
+// CartePro
+// File description:
+// database
+//
+
 package main
 
 import (
@@ -26,6 +33,15 @@ type User struct {
 	Email        string `gorm:"unique"`
 	PasswordHash string
 	Role         Role `gorm:"type:varchar(20);not null;default:'client';check:role IN ('admin','client','partner')"`
+}
+
+type Session struct {
+	ID        uint   `gorm:"primaryKey"`
+	Token     string `gorm:"unique;not null"`
+	UserID    uint
+	User      User `gorm:"foreignKey:UserID"`
+	CreatedAt time.Time
+	ExpiresAt time.Time
 }
 
 type PartnerStatus string
@@ -95,7 +111,7 @@ type Transaction struct {
 	Employer   *Employer `gorm:"foreignKey:EmployerID"`
 	QrTokenID  *uint
 	QrToken    *QrToken `gorm:"foreignKey:QrTokenID"`
-	Amount     float64
+	Amount     int64
 	CreatedAt  time.Time
 	Type       TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
 }
@@ -121,7 +137,7 @@ func initDatabase() {
 	}
 	log.Println("Database connection established")
 
-	if err := db.AutoMigrate(&User{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &Session{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 	log.Println("Database migration completed")
