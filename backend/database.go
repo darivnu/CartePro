@@ -28,6 +28,15 @@ type User struct {
 	Role         Role `gorm:"type:varchar(20);not null;default:'client';check:role IN ('admin','client','partner')"`
 }
 
+type Session struct {
+	ID        uint   `gorm:"primaryKey"`
+	Token     string `gorm:"unique;not null"`
+	UserID    uint
+	User      User `gorm:"foreignKey:UserID"`
+	CreatedAt time.Time
+	ExpiresAt time.Time
+}
+
 type PartnerStatus string
 
 const (
@@ -121,7 +130,7 @@ func initDatabase() {
 	}
 	log.Println("Database connection established")
 
-	if err := db.AutoMigrate(&User{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &Session{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 	log.Println("Database migration completed")
