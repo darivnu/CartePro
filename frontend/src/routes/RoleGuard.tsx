@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 interface RoleGuardProps {
-  role: 'employee' | 'partner' | 'admin'
+  role: 'client' | 'partner' | 'admin'
   children: ReactNode
 }
 
