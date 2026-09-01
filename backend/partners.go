@@ -41,6 +41,16 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//then we gonna check that the siret or buisness name  does not already exist in the database
+	var existingPartner Partner
+	db.Where("siret = ? OR business_name = ?", req.Siret, req.BusinessName).First(&existingPartner)
+	if existingPartner.ID != 0 {
+		http.Error(w, "Siret or Business Name already exists", http.StatusConflict)
+		log.Println("Existing Partner siret:", existingPartner.Siret)
+		log.Println("Existing Partner business name:", existingPartner.BusinessName)
+		return
+	}
+
 	//hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
