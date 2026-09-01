@@ -9,19 +9,20 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type PartnerRegistrationRequest struct {
-	businessName string `json:"business_name"`
-	siret        string `json:"siret"`
-	category     string `json:"category"`
-	address      string `json:"address"`
-	region       string `json:"region"`
-	contactEmail string `json:"contact_email"`
-	password     string `json:"password"`
+	BusinessName string `json:"business_name"`
+	Siret        string `json:"siret"`
+	Category     string `json:"category"`
+	Address      string `json:"address"`
+	Region       string `json:"region"`
+	ContactEmail string `json:"contact_email"`
+	Password     string `json:"password"`
 }
 
 func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
@@ -33,14 +34,15 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 
 	//we gonna check first that the email does not already exist in the database
 	var existingUser User
-	db.Where("email = ?", req.contactEmail).First(&existingUser)
+	db.Where("email = ?", req.ContactEmail).First(&existingUser)
 	if existingUser.ID != 0 {
 		http.Error(w, "Email already exists", http.StatusConflict)
+		log.Println("Existing User email:", existingUser.Email)
 		return
 	}
 
 	//hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
 		return
@@ -48,7 +50,7 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 
 	//create the new partner
 	user := User{
-		Email:        req.contactEmail,
+		Email:        req.ContactEmail,
 		PasswordHash: string(hashedPassword),
 		Role:         RolePartner,
 	}
@@ -60,11 +62,11 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 
 	partner := Partner{
 		UserID:       user.ID,
-		BusinessName: req.businessName,
-		Siret:        req.siret,
-		Category:     req.category,
-		Address:      req.address,
-		Region:       req.region,
+		BusinessName: req.BusinessName,
+		Siret:        req.Siret,
+		Category:     req.Category,
+		Address:      req.Address,
+		Region:       req.Region,
 	}
 
 	if err := db.Create(&partner).Error; err != nil {
