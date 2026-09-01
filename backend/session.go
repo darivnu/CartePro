@@ -49,7 +49,43 @@ func setSessionCookie(w http.ResponseWriter, session *Session) {
 		Path:     "/",
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteLaxMode, //samesitelax mode is a security feature that prevents cross-site request forgery
 		// Secure: true, // enable once the API is served over HTTPS
 	})
+}
+
+func clearSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     sessionCookieName,
+		Value:    "",
+		MaxAge:   -1,
+		Path:     "/",
+		Secure:   false,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func deleteSession(token string) error {
+	return db.Where("token = ?", token).Delete(&Session{}).Error
+}
+
+// this function retrieves the session from the request cookie and checks if it's valid
+func getSessionFromRequest(r *http.Request) (*Session, error) {
+	cookie, err := r.Cookie(sessionCookieName)
+	if err != nil {
+		return nil, err
+	}
+
+	var session Session
+	if err := db.Where("token = ?", cookie.Value).First(&session).Error; err != nil {
+		return nil, err
+	}
+
+	if session.ExpiresAt.Before(time.Now()) {
+		deleteSession(session.Token)
+		return nil, http.ErrNoCookie
+	}
+
+	return &session, nil
 }

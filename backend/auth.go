@@ -87,3 +87,23 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func handleLogout(w http.ResponseWriter, r *http.Request) {
+	session, err := getSessionFromRequest(r)
+	if err != nil {
+		http.Error(w, "No active session", http.StatusUnauthorized)
+		return
+	}
+
+	if err := deleteSession(session.Token); err != nil {
+		http.Error(w, "Error deleting session", http.StatusInternalServerError)
+		return
+	}
+
+	// Clear the session cookie
+	clearSessionCookie(w)
+
+	//return 204 No Content
+	w.WriteHeader(http.StatusNoContent)
+
+}
