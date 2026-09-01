@@ -17,6 +17,7 @@ func seedTestUser() {
 	var count int64
 	db.Model(&User{}).Count(&count)
 	if count > 0 {
+		log.Println("Database already seeded, skipping test user creation")
 		return
 	}
 

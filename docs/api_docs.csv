@@ -1,0 +1,24 @@
+Type,api,input (json),response (json),description,status code
+Auth,POST /auth/login,"{""email"",""password""}","{""user"": {""id"",""email"",""role""}}","Logs in and starts a session (session cookie set via Set-Cookie header, not in the body)",200
+Auth,POST /auth/logout,—,—,Ends the current session,204
+Auth,GET /auth/me,—,"{""id"",""role"",""email""}",Returns the currently authenticated user,200
+Employee,GET /employees/me/balance,—,"{""balance"",""currency"",""updated_at""}",Returns the employee's current balance,200
+Employee,GET /employees/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the employee,200
+Employee,POST /employees/me/qrcode,—,"{""token"",""qr_payload"",""expires_at""}",Generates a short-lived signed QR payment token,201
+Partner,POST /partners/register,"{""business_name"",""siret"",""category"",""address"",""region"",""contact_email"",""password""}","{""partner"": {...}}",Registers a new partner account (status: pending),201
+Partner,GET /partners/me,—,"{""partner"": {...}}",Returns the logged-in partner's own profile,200
+Partner,PATCH /partners/me,{editable profile fields},"{""partner"": {...}}",Updates the partner's own profile,200
+Partner,POST /partners/me/transactions,"{""qr_payload"",""amount"",""idempotency_key""}","{""transaction"": {...}}",Validates a QR code and records the payment,201
+Partner,GET /partners/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated list of transactions received by the partner,200
+Partner,GET /partners/me/dashboard,query: period,"{""total_received"",""transaction_count"",""by_day""}",Financial summary dashboard for the partner,200
+Shared,GET /partners,"query: search, category, page, limit","{""data"":[...],""meta"":{...}}",Browsable/searchable catalog of active partners,200
+Shared,GET /partners/{id},—,"{""partner"": {...}}",Returns a single partner's public detail,200
+Admin,GET /admin/partners,"query: status, page, limit","{""data"":[...],""meta"":{...}}","Lists partner registrations, filterable by status",200
+Admin,POST /admin/partners/{id}/approve,—,"{""partner"": {...}}",Approves a pending partner (status → active),200
+Admin,POST /admin/partners/{id}/reject,"{""reason""}","{""partner"": {...}}",Rejects a pending partner (status → rejected),200
+Admin,PATCH /admin/partners/{id}/status,"{""status""}","{""partner"": {...}}",Changes a partner's lifecycle status,200
+Admin,GET /admin/dashboard,query: period,"{""total_transaction_volume"",""active_partners_count"",""transaction_count"",""geographic_breakdown""}",National stats dashboard,200
+Admin,POST /admin/topups,"{""employee_id"",""amount"",""reference""}","{""transaction"": {...}}",Credits an employee's balance,201
+Admin,GET /admin/employees,"query: employer_id, page, limit","{""data"":[...],""meta"":{...}}","Lists employees, filterable by employer",200
+Admin,GET /admin/employees/{id},—,"{""employee"": {...}}",Returns employee detail incl. balance and top-up history,200
+Integrations,GET /integrations/v1/employees/{employee_id}/balance,header: X-API-Key,"{""employee_id"",""balance"",""currency"",""as_of""}",Third-party (HRIS) balance lookup,200
