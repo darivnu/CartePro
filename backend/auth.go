@@ -1,0 +1,89 @@
+//
+// EPITECH PROJECT, 2026
+// CartePro
+// File description:
+// auth
+//
+
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+type AuthRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserResponse struct {
+	ID    uint   `json:"id"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
+
+type LoginResponse struct {
+	User UserResponse `json:"user"`
+}
+
+func check_valid_user(req AuthRequest) (User, int) {
+	var user User
+
+	db.Where("email = ?", req.Email).First(&user) //returns first record that matches the condition, or an error if no record is found
+
+	//should we return 404 for not found here?
+	if user.ID == 0 {
+		//return 401 (Unauthorized) if user not found
+		return user, http.StatusUnauthorized
+	}
+
+	//now check pass
+	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
+
+	if err != nil {
+		//return 401 (Unauthorized) if password does not match
+		return user, http.StatusUnauthorized
+	}
+
+	return user, http.StatusOK
+
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+	var req AuthRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, status := check_valid_user(req)
+
+	if status != 200 {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		return
+	}
+
+	session, err := createSession(user.ID)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
+	}
+
+	setSessionCookie(w, session)
+
+	// Send a successful login response
+	response := LoginResponse{
+		User: UserResponse{
+			ID:    user.ID,
+			Email: user.Email,
+			Role:  string(user.Role),
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}

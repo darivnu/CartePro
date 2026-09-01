@@ -1,3 +1,10 @@
+//
+// EPITECH PROJECT, 2026
+// CartePro
+// File description:
+// database
+//
+
 package main
 
 import (
@@ -104,7 +111,7 @@ type Transaction struct {
 	Employer   *Employer `gorm:"foreignKey:EmployerID"`
 	QrTokenID  *uint
 	QrToken    *QrToken `gorm:"foreignKey:QrTokenID"`
-	Amount     float64
+	Amount     int64
 	CreatedAt  time.Time
 	Type       TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
 }

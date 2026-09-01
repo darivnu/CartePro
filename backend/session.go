@@ -1,3 +1,10 @@
+//
+// EPITECH PROJECT, 2026
+// CartePro
+// File description:
+// session
+//
+
 package main
 
 import (
