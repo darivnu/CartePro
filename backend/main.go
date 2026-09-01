@@ -22,7 +22,7 @@ func main() {
 
 	addr := ":4242"
 	log.Printf("Starting server on %s", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := http.ListenAndServe(addr, corsMiddleware(mux)); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
