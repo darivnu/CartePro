@@ -1,1 +1,210 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --color-graphite-900: #1B1E22;
+    --color-graphite-800: #262A2F;
+    --color-graphite-700: #31363C;
+    --color-graphite-600: #4A5057;
+    --color-graphite-500: #6B717A;
+    --color-graphite-400: #8A9199;
+    --color-graphite-300: #9AA1A9;
+    --color-graphite-200: #D8DBDF;
+    --color-graphite-100: #E9EBEE;
+
+    --color-gold-500: #C8A75B;
+
+    --color-surface-000: #FFFFFF;
+    --color-surface-050: #F7F8F9;
+    --color-surface-100: #EFF0F2;
+    --color-surface-200: #EDEEF0;
+    --color-surface-300: #DDE0E4;
+    --color-surface-400: #CFD3D8;
+    --color-surface-500: #C0C5CB;
+    --color-surface-600: #D5D9DE;
+
+    --color-ink-900: #1B1E22;
+    --color-ink-600: #565C63;
+    --color-ink-500: #4C5259;
+
+    --color-stripe-dark: #0F1113;
+    --color-stripe-light: #3A3F45;
+
+    --color-success-600: #1F7A55;
+    --color-pending-600: #B98A18;
+    --color-danger-600: #A02A20;
+
+    --background-image-card-gradient: linear-gradient(160deg, var(--color-graphite-700) 0%, var(--color-graphite-900) 55%, var(--color-graphite-800) 100%);
+
+    --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+    --radius-card: 12px;
+    --radius-panel: 8px;
+    --radius-row: 6px;
+    --radius-bar: 2px;
+    --radius-badge: 0px;
+
+    --shadow-card-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+    --shadow-row-raised: inset 0 1px 0 0 #FFFFFF, 0 1px 0 0 #D5D9DE;
+    --shadow-row-debossed: inset 0 2px 3px 0 rgba(0, 0, 0, 0.12);
+    --shadow-key-secondary: inset 0 -2px 0 0 #C0C5CB;
+
+    --text-shadow-emboss-dark: 0 1px 0 #0B0D0F, 0 -1px 0 rgba(255, 255, 255, 0.28);
+    --text-shadow-emboss-light: 0 1px 0 #FFFFFF;
+
+    --text-balance-xl: 2.375rem;
+    --text-balance-xl--line-height: 1;
+    --text-balance-xl--letter-spacing: -0.01em;
+    --text-balance-xl--font-weight: 700;
+
+    --text-balance-lg: 1.75rem;
+    --text-balance-lg--line-height: 1;
+    --text-balance-lg--letter-spacing: -0.01em;
+    --text-balance-lg--font-weight: 700;
+
+    --text-h1: 1.5rem;
+    --text-h1--line-height: 1.15;
+    --text-h1--letter-spacing: -0.02em;
+    --text-h1--font-weight: 700;
+
+    --text-h2: 1.25rem;
+    --text-h2--line-height: 1.2;
+    --text-h2--letter-spacing: -0.01em;
+    --text-h2--font-weight: 700;
+
+    --text-amount-row: 0.9375rem;
+    --text-amount-row--line-height: 1.2;
+    --text-amount-row--font-weight: 700;
+
+    --text-wordmark: 1.0625rem;
+    --text-wordmark--line-height: 1;
+    --text-wordmark--letter-spacing: 0.16em;
+    --text-wordmark--font-weight: 700;
+
+    --text-card-number: 0.8125rem;
+    --text-card-number--line-height: 1;
+    --text-card-number--letter-spacing: 0.20em;
+    --text-card-number--font-weight: 500;
+
+    --text-label-caps: 0.6875rem;
+    --text-label-caps--line-height: 1;
+    --text-label-caps--letter-spacing: 0.16em;
+    --text-label-caps--font-weight: 600;
+
+    --text-status-caps: 0.625rem;
+    --text-status-caps--line-height: 1;
+    --text-status-caps--letter-spacing: 0.12em;
+    --text-status-caps--font-weight: 600;
+
+    --text-micro-caps: 0.5625rem;
+    --text-micro-caps--line-height: 1.5;
+    --text-micro-caps--letter-spacing: 0.18em;
+    --text-micro-caps--font-weight: 600;
+
+    --text-body: 0.8125rem;
+    --text-body--line-height: 1.5;
+    --text-body--font-weight: 400;
+
+    --text-body-strong: 0.8125rem;
+    --text-body-strong--line-height: 1.5;
+    --text-body-strong--font-weight: 600;
+
+    --text-body-lg: 0.9375rem;
+    --text-body-lg--line-height: 1.6;
+    --text-body-lg--font-weight: 400;
+
+    --text-caption: 0.6875rem;
+    --text-caption--line-height: 1.5;
+    --text-caption--font-weight: 400;
+
+    --text-button: 0.8125rem;
+    --text-button--line-height: 1;
+    --text-button--letter-spacing: 0.12em;
+    --text-button--font-weight: 600;
+}
+
+:root {
+    --radius: 0.5rem;
+
+    --background: var(--color-surface-200);
+    --foreground: var(--color-ink-900);
+    --card: var(--color-surface-000);
+    --card-foreground: var(--color-ink-900);
+    --popover: var(--color-surface-000);
+    --popover-foreground: var(--color-ink-900);
+    --primary: var(--color-graphite-900);
+    --primary-foreground: var(--color-surface-000);
+    --secondary: var(--color-surface-100);
+    --secondary-foreground: var(--color-ink-900);
+    --muted: var(--color-surface-100);
+    --muted-foreground: var(--color-ink-600);
+    --accent: var(--color-surface-100);
+    --accent-foreground: var(--color-ink-900);
+    --destructive: var(--color-danger-600);
+    --border: var(--color-surface-400);
+    --input: var(--color-surface-400);
+    --ring: var(--color-graphite-500);
+}
+
+.dark {
+    --background: var(--color-graphite-900);
+    --foreground: var(--color-surface-050);
+    --card: var(--color-graphite-800);
+    --card-foreground: var(--color-surface-050);
+    --popover: var(--color-graphite-800);
+    --popover-foreground: var(--color-surface-050);
+    --primary: var(--color-surface-000);
+    --primary-foreground: var(--color-graphite-900);
+    --secondary: var(--color-graphite-700);
+    --secondary-foreground: var(--color-surface-050);
+    --muted: var(--color-graphite-700);
+    --muted-foreground: var(--color-graphite-300);
+    --accent: var(--color-graphite-700);
+    --accent-foreground: var(--color-surface-050);
+    --destructive: var(--color-danger-600);
+    --border: var(--color-graphite-600);
+    --input: var(--color-graphite-600);
+    --ring: var(--color-graphite-400);
+}
+
+@theme inline {
+    --font-heading: var(--font-display);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground font-sans;
+        font-variant-numeric: tabular-nums;
+    }
+}
