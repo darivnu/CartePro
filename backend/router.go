@@ -17,6 +17,7 @@ func newRouter() *http.ServeMux {
 	//all the routhing things go here
 	mux.HandleFunc("POST /auth/login", handleLogin)
 	mux.HandleFunc("POST /auth/logout", handleLogout)
+	mux.HandleFunc("GET /auth/me", handleUserInfo)
 
 	return mux
 }
