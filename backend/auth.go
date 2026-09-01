@@ -29,6 +29,12 @@ type LoginResponse struct {
 	User UserResponse `json:"user"`
 }
 
+type UserInfoResponse struct {
+	ID    uint   `json:"id"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
+
 func check_valid_user(req AuthRequest) (User, int) {
 	var user User
 
@@ -106,4 +112,27 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	//return 204 No Content
 	w.WriteHeader(http.StatusNoContent)
 
+}
+
+func handleUserInfo(w http.ResponseWriter, r *http.Request) {
+	session, err := getSessionFromRequest(r)
+	if err != nil {
+		http.Error(w, "No active session", http.StatusUnauthorized)
+		return
+	}
+
+	var user User
+	if err := db.First(&user, session.UserID).Error; err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	response := UserInfoResponse{
+		ID:    user.ID,
+		Email: user.Email,
+		Role:  string(user.Role),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
