@@ -5,6 +5,6 @@ import "fmt"
 func main() {
 
 	fmt.Println("Starting database")
-	database_init()
+	initDatabase()
 	fmt.Println("Database initialized")
 }

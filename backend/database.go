@@ -45,6 +45,7 @@ type Partner struct {
 	Category     string
 	Address      string
 	Region       string
+	Balance      int64         `gorm:"default:0"` //stored in cents
 	Status       PartnerStatus `gorm:"type:varchar(20);not null;default:'pending';check:status IN ('pending','approved','rejected')"`
 	RejectReason *string       //pointer to string to allow null value
 	CreatedAt    time.Time
@@ -55,7 +56,7 @@ type Client struct {
 	UserID    uint
 	User      User `gorm:"foreignKey:UserID"`
 	Name      string
-	Balance   float64
+	Balance   int64 `gorm:"default:0"` //stored in cents
 	CreatedAt time.Time
 }
 
@@ -99,7 +100,7 @@ type Transaction struct {
 	Type       TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
 }
 
-func database_init() {
+func initDatabase() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("failed to load .env file: %v", err)
 	}
