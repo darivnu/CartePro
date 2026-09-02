@@ -26,5 +26,8 @@ func newRouter() *http.ServeMux {
 	//client
 	mux.HandleFunc("POST /clients/register", handleClientRegistration)
 
+	//admin
+	mux.HandleFunc("POST /admin/register", handleAdminRegistration)
+
 	return mux
 }
