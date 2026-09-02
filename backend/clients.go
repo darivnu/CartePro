@@ -10,13 +10,14 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 type ClientRegistrationRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Name	 string `json:"name"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Name       string `json:"name"`
 	EmployerID uint   `json:"employer_id"`
 }
 
@@ -53,11 +54,27 @@ func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := Client{
-		UserID:     user.ID,
-		Name:       req.Name,
-		EmployerID: req.EmployerID,
+	//check if employer exists
+	var employer Employer
+	var employer_exists bool = true
+	if err := db.First(&employer, req.EmployerID).Error; err != nil {
+		employer_exists = false
 	}
+	var client Client
+	if employer_exists {
+		client = Client{
+			UserID:     user.ID,
+			Name:       req.Name,
+			EmployerID: &employer.ID,
+		}
+	} else {
+		client = Client{
+			UserID:     user.ID,
+			Name:       req.Name,
+			EmployerID: nil,
+		}
+	}
+
 	if err := db.Create(&client).Error; err != nil {
 		http.Error(w, "Failed to create client", http.StatusInternalServerError)
 		return

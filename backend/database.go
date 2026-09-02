@@ -79,8 +79,8 @@ type Client struct {
 	ID         uint `gorm:"primaryKey"`
 	UserID     uint
 	User       User `gorm:"foreignKey:UserID"`
-	EmployerID uint
-	Employer   Employer `gorm:"foreignKey:EmployerID"`
+	EmployerID *uint
+	Employer   *Employer `gorm:"foreignKey:EmployerID"`
 	Name       string
 	Balance    int64 `gorm:"default:0"` //stored in cents
 	CreatedAt  time.Time
@@ -90,9 +90,9 @@ type Client struct {
 // it is however the employer that tops up the client balance (through the admin panel).
 // therefore the transaction table will have an optional foreign key to the employer should it be a client topup transaction.
 type Employer struct {
-	ID        uint     `gorm:"primaryKey"`
-	Name      string   `gorm:"unique"`
-	Clients   []Client `gorm:"foreignKey:EmployerId"`
+	ID        uint      `gorm:"primaryKey"`
+	Name      string    `gorm:"unique"`
+	Clients   *[]Client `gorm:"foreignKey:EmployerId"`
 	CreatedAt time.Time
 }
 type QrToken struct {
