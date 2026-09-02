@@ -23,25 +23,9 @@ type QrValidationRequest struct {
 }
 
 func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
-	session, err := server.GetSessionFromRequest(r)
+	_, partner, err := server.GetPartnerFromSession(r)
 	if err != nil {
-		http.Error(w, "No active session", http.StatusUnauthorized)
-		return
-	}
-
-	var user database.User
-	if err := database.DB.First(&user, session.UserID).Error; err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-	if user.Role != database.RolePartner {
-		http.Error(w, "User is not a partner", http.StatusForbidden)
-		return
-	}
-
-	var partner database.Partner
-	if err := database.DB.Where("user_id = ?", user.ID).First(&partner).Error; err != nil {
-		http.Error(w, "Partner not found", http.StatusNotFound)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 	if partner.Status != database.StatusApproved {
@@ -108,7 +92,7 @@ func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
 	client.Balance -= req.Amount
 	partner.Balance += req.Amount
 	database.DB.Save(&client)
-	database.DB.Save(&partner)
+	database.DB.Save(partner)
 
 	transaction := database.Transaction{
 		ClientID:       client.ID,
