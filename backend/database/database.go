@@ -72,6 +72,7 @@ type Partner struct {
 	Balance      int64         `gorm:"default:0"` //stored in cents
 	Status       PartnerStatus `gorm:"type:varchar(20);not null;default:'pending';check:status IN ('pending','approved','rejected')"`
 	RejectReason *string       //pointer to string to allow null value
+	MinisterPick bool          `gorm:"default:false"` //the minister can highlight his favourite partners
 	CreatedAt    time.Time
 }
 

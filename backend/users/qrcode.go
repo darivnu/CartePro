@@ -70,27 +70,9 @@ func verifyQrPayload(qrPayload string) (token string, expiresAt time.Time, err e
 }
 
 func HandleQrCodeGeneration(w http.ResponseWriter, r *http.Request) {
-	session, err := server.GetSessionFromRequest(r)
+	_, client, err := server.GetClientFromSession(r)
 	if err != nil {
-		http.Error(w, "No active session", http.StatusUnauthorized)
-		return
-	}
-
-	var user database.User
-	if err := database.DB.First(&user, session.UserID).Error; err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	//check if user is a client
-	if user.Role != database.RoleClient {
-		http.Error(w, "User is not a client", http.StatusForbidden)
-		return
-	}
-
-	var client database.Client
-	if err := database.DB.Where("user_id = ?", user.ID).First(&client).Error; err != nil {
-		http.Error(w, "Client not found", http.StatusNotFound)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
