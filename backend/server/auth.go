@@ -60,7 +60,7 @@ func check_valid_user(req AuthRequest) (database.User, int) {
 
 }
 
-func handleLogin(w http.ResponseWriter, r *http.Request) {
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var req AuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -96,8 +96,8 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func handleLogout(w http.ResponseWriter, r *http.Request) {
-	session, err := getSessionFromRequest(r)
+func HandleLogout(w http.ResponseWriter, r *http.Request) {
+	session, err := GetSessionFromRequest(r)
 	if err != nil {
 		http.Error(w, "No active session", http.StatusUnauthorized)
 		return
@@ -116,8 +116,8 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handleUserInfo(w http.ResponseWriter, r *http.Request) {
-	session, err := getSessionFromRequest(r)
+func HandleUserInfo(w http.ResponseWriter, r *http.Request) {
+	session, err := GetSessionFromRequest(r)
 	if err != nil {
 		http.Error(w, "No active session", http.StatusUnauthorized)
 		return

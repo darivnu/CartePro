@@ -12,7 +12,7 @@ import (
 	"net/http"
 
 	"cartepro/database"
-	"cartepro/server"
+	"cartepro/routing"
 )
 
 func main() {
@@ -20,12 +20,12 @@ func main() {
 
 	database.InitDatabase()
 
-	mux := server.NewRouter()
-	database.SeedTestUser()
+	mux := routing.NewRouter()
+	database.SeedTestClient()
 
 	addr := ":4242"
 	log.Printf("Starting server on %s", addr)
-	if err := http.ListenAndServe(addr, server.CorsMiddleware(mux)); err != nil {
+	if err := http.ListenAndServe(addr, routing.CorsMiddleware(mux)); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }

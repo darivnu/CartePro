@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SeedTestUser() {
+func SeedTestClient() {
 	var count int64
 	DB.Model(&User{}).Count(&count)
 	if count > 0 {
@@ -33,6 +33,15 @@ func SeedTestUser() {
 	}
 	if err := DB.Create(&user).Error; err != nil {
 		log.Fatalf("failed to seed test user: %v", err)
+	}
+
+	client := Client{
+		UserID:  user.ID,
+		Name:    "jack",
+		Balance: 1000, // Set an initial balance for the test client (in cents, so 10 euros)
+	}
+	if err := DB.Create(&client).Error; err != nil {
+		log.Fatalf("failed to seed test client: %v", err)
 	}
 
 	log.Printf("seeded test user -> email: test@cartepro.dev password: password123")

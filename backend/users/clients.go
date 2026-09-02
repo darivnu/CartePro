@@ -11,10 +11,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"cartepro/database"
+	"cartepro/server"
 )
 
 type ClientRegistrationRequest struct {
@@ -95,5 +97,39 @@ func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"client": client,
+	})
+}
+
+func HandleClientBalance(w http.ResponseWriter, r *http.Request) {
+
+	session, err := server.GetSessionFromRequest(r)
+	if err != nil {
+		http.Error(w, "No active session", http.StatusUnauthorized)
+		return
+	}
+
+	var user database.User
+	if err := database.DB.First(&user, session.UserID).Error; err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	//check if user is a client
+	if user.Role != database.RoleClient {
+		http.Error(w, "User is not a client", http.StatusForbidden)
+		return
+	}
+
+	var client database.Client
+	if err := database.DB.Where("user_id = ?", user.ID).First(&client).Error; err != nil {
+		http.Error(w, "Client not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"balance":    client.Balance,
+		"updated_at": time.Now().UTC().Format(time.RFC3339), //return the current time in UTC as the updated_at field
 	})
 }

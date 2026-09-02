@@ -73,7 +73,7 @@ func deleteSession(token string) error {
 }
 
 // this function retrieves the session from the request cookie and checks if it's valid
-func getSessionFromRequest(r *http.Request) (*database.Session, error) {
+func GetSessionFromRequest(r *http.Request) (*database.Session, error) {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
 		return nil, err
