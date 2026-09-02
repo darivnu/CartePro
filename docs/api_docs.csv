@@ -5,7 +5,7 @@ Auth,GET /auth/me,—,"{""id"",""role"",""email""}",Returns the currently authen
 Client,GET /clients/me/balance,—,"{""balance"",""currency"",""updated_at""}",Returns the client's current balance,200
 Client,GET /clients/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the client,200
 Client,POST /clients/me/qrcode,—,"{""token"",""qr_payload"",""expires_at""}",Generates a short-lived signed QR payment token,201
-Client,POST /clients/register,"{""email"",""password"",""name"",""employer_id""}","{""client"": {...}}",Registers a new client account,201
+Client,POST /clients/register,"{""email"",""password"",""name"",""employer_id""}","{""client"": {...}}","Registers a new client account. the employer id is optional (just write 0), but if it is not 0 and we find no match, we return error",201
 Partner,POST /partners/register,"{""business_name"",""siret"",""category"",""address"",""region"",""contact_email"",""password""}","{""partner"": {...}}",Registers a new partner account (status: pending),201
 Partner,GET /partners/me,—,"{""partner"": {...}}",Returns the logged-in partner's own profile,200
 Partner,PATCH /partners/me,{editable profile fields},"{""partner"": {...}}",Updates the partner's own profile,200
