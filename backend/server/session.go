@@ -5,13 +5,15 @@
 // session
 //
 
-package main
+package server
 
 import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
 	"time"
+
+	"cartepro/database"
 )
 
 const sessionCookieName = "session_token"
@@ -25,24 +27,24 @@ func generateSessionToken() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-func createSession(userID uint) (*Session, error) {
+func createSession(userID uint) (*database.Session, error) {
 	token, err := generateSessionToken()
 	if err != nil {
 		return nil, err
 	}
 
-	session := &Session{
+	session := &database.Session{
 		Token:     token,
 		UserID:    userID,
 		ExpiresAt: time.Now().Add(sessionDuration),
 	}
-	if err := db.Create(session).Error; err != nil {
+	if err := database.DB.Create(session).Error; err != nil {
 		return nil, err
 	}
 	return session, nil
 }
 
-func setSessionCookie(w http.ResponseWriter, session *Session) {
+func setSessionCookie(w http.ResponseWriter, session *database.Session) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookieName,
 		Value:    session.Token,
@@ -67,18 +69,18 @@ func clearSessionCookie(w http.ResponseWriter) {
 }
 
 func deleteSession(token string) error {
-	return db.Where("token = ?", token).Delete(&Session{}).Error
+	return database.DB.Where("token = ?", token).Delete(&database.Session{}).Error
 }
 
 // this function retrieves the session from the request cookie and checks if it's valid
-func getSessionFromRequest(r *http.Request) (*Session, error) {
+func getSessionFromRequest(r *http.Request) (*database.Session, error) {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
 		return nil, err
 	}
 
-	var session Session
-	if err := db.Where("token = ?", cookie.Value).First(&session).Error; err != nil {
+	var session database.Session
+	if err := database.DB.Where("token = ?", cookie.Value).First(&session).Error; err != nil {
 		return nil, err
 	}
 

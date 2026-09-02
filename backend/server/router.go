@@ -5,13 +5,15 @@
 // router
 //
 
-package main
+package server
 
 import (
 	"net/http"
+
+	"cartepro/users"
 )
 
-func newRouter() *http.ServeMux {
+func NewRouter() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	//all the routhing things go here
@@ -21,13 +23,13 @@ func newRouter() *http.ServeMux {
 	mux.HandleFunc("GET /auth/me", handleUserInfo)
 
 	//partner
-	mux.HandleFunc("POST /partners/register", handlePartnerRegistration)
+	mux.HandleFunc("POST /partners/register", users.HandlePartnerRegistration)
 
 	//client
-	mux.HandleFunc("POST /clients/register", handleClientRegistration)
+	mux.HandleFunc("POST /clients/register", users.HandleClientRegistration)
 
 	//admin
-	mux.HandleFunc("POST /admin/register", handleAdminRegistration)
+	mux.HandleFunc("POST /admin/register", users.HandleAdminRegistration)
 
 	return mux
 }

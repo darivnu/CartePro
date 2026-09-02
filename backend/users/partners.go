@@ -5,7 +5,7 @@
 // This handles all the different types of partners
 //
 
-package main
+package users
 
 import (
 	"encoding/json"
@@ -13,6 +13,8 @@ import (
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
+
+	"cartepro/database"
 )
 
 type PartnerRegistrationRequest struct {
@@ -25,7 +27,7 @@ type PartnerRegistrationRequest struct {
 	Password     string `json:"password"`
 }
 
-func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
+func HandlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 	var req PartnerRegistrationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -33,8 +35,8 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//we gonna check first that the email does not already exist in the database
-	var existingUser User
-	db.Where("email = ?", req.ContactEmail).First(&existingUser)
+	var existingUser database.User
+	database.DB.Where("email = ?", req.ContactEmail).First(&existingUser)
 	if existingUser.ID != 0 {
 		http.Error(w, "Email already exists", http.StatusConflict)
 		log.Println("Existing User email:", existingUser.Email)
@@ -42,8 +44,8 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//then we gonna check that the siret or buisness name  does not already exist in the database
-	var existingPartner Partner
-	db.Where("siret = ? OR business_name = ?", req.Siret, req.BusinessName).First(&existingPartner)
+	var existingPartner database.Partner
+	database.DB.Where("siret = ? OR business_name = ?", req.Siret, req.BusinessName).First(&existingPartner)
 	if existingPartner.ID != 0 {
 		http.Error(w, "Siret or Business Name already exists", http.StatusConflict)
 		log.Println("Existing Partner siret:", existingPartner.Siret)
@@ -59,18 +61,18 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//create the new partner
-	user := User{
+	user := database.User{
 		Email:        req.ContactEmail,
 		PasswordHash: string(hashedPassword),
-		Role:         RolePartner,
+		Role:         database.RolePartner,
 	}
 
-	if err := db.Create(&user).Error; err != nil {
+	if err := database.DB.Create(&user).Error; err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
 
-	partner := Partner{
+	partner := database.Partner{
 		UserID:       user.ID,
 		BusinessName: req.BusinessName,
 		Siret:        req.Siret,
@@ -79,7 +81,7 @@ func handlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 		Region:       req.Region,
 	}
 
-	if err := db.Create(&partner).Error; err != nil {
+	if err := database.DB.Create(&partner).Error; err != nil {
 		http.Error(w, "Failed to create partner", http.StatusInternalServerError)
 		return
 	}
