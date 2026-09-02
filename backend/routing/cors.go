@@ -5,7 +5,7 @@
 // cors
 //
 
-package server
+package routing
 
 import (
 	"net/http"

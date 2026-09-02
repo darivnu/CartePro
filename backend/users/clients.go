@@ -15,6 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"cartepro/database"
+	"cartepro/server"
 )
 
 type ClientRegistrationRequest struct {
@@ -96,4 +97,19 @@ func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"client": client,
 	})
+}
+
+func HandleClientBalance(w http.ResponseWriter, r *http.Request) {
+
+	session, err := server.GetSessionFromRequest(r)
+	if err != nil {
+		http.Error(w, "No active session", http.StatusUnauthorized)
+		return
+	}
+
+	var user database.User
+	if err := database.DB.First(&user, session.UserID).Error; err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
 }
