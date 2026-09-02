@@ -159,6 +159,12 @@ func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"partner": response})
 }
 
+// withoutPasswordHash returns a copy of user with PasswordHash cleared, so it's safe to serialize.
+func withoutPasswordHash(user database.User) database.User {
+	user.PasswordHash = ""
+	return user
+}
+
 func HandleGetOwnPartnerInfo(w http.ResponseWriter, r *http.Request) {
 	user, partner, err := server.GetPartnerFromSession(r)
 	if err != nil {
@@ -166,7 +172,7 @@ func HandleGetOwnPartnerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	partner.User = *user //we add the user to the partner so that we can return the email in the response
+	partner.User = withoutPasswordHash(*user) //we add the user to the partner so that we can return the email in the response, without leaking the password hash
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
