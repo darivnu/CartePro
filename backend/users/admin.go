@@ -5,13 +5,15 @@
 // admin
 //
 
-package main
+package users
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/darivnu/cartepro/database"
 )
 
 type AdminRegistrationRequest struct {
@@ -20,7 +22,7 @@ type AdminRegistrationRequest struct {
 	Name     string `json:"name"`
 }
 
-func handleAdminRegistration(w http.ResponseWriter, r *http.Request) {
+func HandleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 
 	var req AdminRegistrationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -29,8 +31,8 @@ func handleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if the email already exists in the database
-	var existingUser User
-	db.Where("email = ?", req.Email).First(&existingUser)
+	var existingUser database.User
+	database.DB.Where("email = ?", req.Email).First(&existingUser)
 	if existingUser.ID != 0 {
 		http.Error(w, "Email already exists", http.StatusConflict)
 		return
@@ -42,22 +44,22 @@ func handleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
 		return
 	}
-	user := User{
+	user := database.User{
 		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
-		Role:         RoleAdmin,
+		Role:         database.RoleAdmin,
 	}
-	if err := db.Create(&user).Error; err != nil {
+	if err := database.DB.Create(&user).Error; err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
 
-	admin := Admin{
+	admin := database.Admin{
 		Name: req.Name,
 		User: user,
 	}
 
-	if err := db.Create(&admin).Error; err != nil {
+	if err := database.DB.Create(&admin).Error; err != nil {
 		http.Error(w, "Failed to create admin", http.StatusInternalServerError)
 		return
 	}

@@ -5,13 +5,15 @@
 // auth
 //
 
-package main
+package server
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/darivnu/cartepro/database"
 )
 
 type AuthRequest struct {
@@ -35,10 +37,10 @@ type UserInfoResponse struct {
 	Role  string `json:"role"`
 }
 
-func check_valid_user(req AuthRequest) (User, int) {
-	var user User
+func check_valid_user(req AuthRequest) (database.User, int) {
+	var user database.User
 
-	db.Where("email = ?", req.Email).First(&user) //returns first record that matches the condition, or an error if no record is found
+	database.DB.Where("email = ?", req.Email).First(&user) //returns first record that matches the condition, or an error if no record is found
 
 	//should we return 404 for not found here?
 	if user.ID == 0 {
@@ -121,8 +123,8 @@ func handleUserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
-	if err := db.First(&user, session.UserID).Error; err != nil {
+	var user database.User
+	if err := database.DB.First(&user, session.UserID).Error; err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}

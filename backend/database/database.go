@@ -5,7 +5,7 @@
 // database
 //
 
-package main
+package database
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 type Role string
 
@@ -127,7 +127,7 @@ type Transaction struct {
 	Type       TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
 }
 
-func initDatabase() {
+func InitDatabase() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("failed to load .env file: %v", err)
 	}
@@ -142,13 +142,13 @@ func initDatabase() {
 	)
 
 	var err error
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	log.Println("Database connection established")
 
-	if err := db.AutoMigrate(&User{}, &Session{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}, &Admin{}); err != nil {
+	if err := DB.AutoMigrate(&User{}, &Session{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}, &Admin{}); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 	log.Println("Database migration completed")
