@@ -5,14 +5,18 @@
 // clients
 //
 
-package main
+package users
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
+
+	"cartepro/database"
+	"cartepro/server"
 )
 
 type ClientRegistrationRequest struct {
@@ -22,7 +26,7 @@ type ClientRegistrationRequest struct {
 	EmployerID uint   `json:"employer_id"`
 }
 
-func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
+func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	var req ClientRegistrationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -30,17 +34,17 @@ func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if the email already exists in the database
-	var existingUser User
-	db.Where("email = ?", req.Email).First(&existingUser)
+	var existingUser database.User
+	database.DB.Where("email = ?", req.Email).First(&existingUser)
 	if existingUser.ID != 0 {
 		http.Error(w, "Email already exists", http.StatusConflict)
 		return
 	}
 
 	//check if employer exists
-	var employer Employer
+	var employer database.Employer
 	var employer_exists bool = true
-	if err := db.First(&employer, req.EmployerID).Error; err != nil {
+	if err := database.DB.First(&employer, req.EmployerID).Error; err != nil {
 		employer_exists = false
 		log.Printf("Employer with ID %d does not exist, proceeding without employer association", req.EmployerID)
 	}
@@ -59,32 +63,32 @@ func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//create new user and client
-	user := User{
+	user := database.User{
 		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
-		Role:         RoleClient,
+		Role:         database.RoleClient,
 	}
-	if err := db.Create(&user).Error; err != nil {
+	if err := database.DB.Create(&user).Error; err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
 
-	var client Client
+	var client database.Client
 	if employer_exists {
-		client = Client{
+		client = database.Client{
 			UserID:     user.ID,
 			Name:       req.Name,
 			EmployerID: &employer.ID,
 		}
 	} else {
-		client = Client{
+		client = database.Client{
 			UserID:     user.ID,
 			Name:       req.Name,
 			EmployerID: nil,
 		}
 	}
 
-	if err := db.Create(&client).Error; err != nil {
+	if err := database.DB.Create(&client).Error; err != nil {
 		http.Error(w, "Failed to create client", http.StatusInternalServerError)
 		return
 	}
@@ -93,5 +97,39 @@ func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"client": client,
+	})
+}
+
+func HandleClientBalance(w http.ResponseWriter, r *http.Request) {
+
+	session, err := server.GetSessionFromRequest(r)
+	if err != nil {
+		http.Error(w, "No active session", http.StatusUnauthorized)
+		return
+	}
+
+	var user database.User
+	if err := database.DB.First(&user, session.UserID).Error; err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	//check if user is a client
+	if user.Role != database.RoleClient {
+		http.Error(w, "User is not a client", http.StatusForbidden)
+		return
+	}
+
+	var client database.Client
+	if err := database.DB.Where("user_id = ?", user.ID).First(&client).Error; err != nil {
+		http.Error(w, "Client not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"balance":    client.Balance,
+		"updated_at": time.Now().UTC().Format(time.RFC3339), //return the current time in UTC as the updated_at field
 	})
 }

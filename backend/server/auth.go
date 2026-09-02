@@ -5,13 +5,15 @@
 // auth
 //
 
-package main
+package server
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
+
+	"cartepro/database"
 )
 
 type AuthRequest struct {
@@ -35,10 +37,10 @@ type UserInfoResponse struct {
 	Role  string `json:"role"`
 }
 
-func check_valid_user(req AuthRequest) (User, int) {
-	var user User
+func check_valid_user(req AuthRequest) (database.User, int) {
+	var user database.User
 
-	db.Where("email = ?", req.Email).First(&user) //returns first record that matches the condition, or an error if no record is found
+	database.DB.Where("email = ?", req.Email).First(&user) //returns first record that matches the condition, or an error if no record is found
 
 	//should we return 404 for not found here?
 	if user.ID == 0 {
@@ -58,7 +60,7 @@ func check_valid_user(req AuthRequest) (User, int) {
 
 }
 
-func handleLogin(w http.ResponseWriter, r *http.Request) {
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var req AuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -94,8 +96,8 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func handleLogout(w http.ResponseWriter, r *http.Request) {
-	session, err := getSessionFromRequest(r)
+func HandleLogout(w http.ResponseWriter, r *http.Request) {
+	session, err := GetSessionFromRequest(r)
 	if err != nil {
 		http.Error(w, "No active session", http.StatusUnauthorized)
 		return
@@ -114,15 +116,15 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handleUserInfo(w http.ResponseWriter, r *http.Request) {
-	session, err := getSessionFromRequest(r)
+func HandleUserInfo(w http.ResponseWriter, r *http.Request) {
+	session, err := GetSessionFromRequest(r)
 	if err != nil {
 		http.Error(w, "No active session", http.StatusUnauthorized)
 		return
 	}
 
-	var user User
-	if err := db.First(&user, session.UserID).Error; err != nil {
+	var user database.User
+	if err := database.DB.First(&user, session.UserID).Error; err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}

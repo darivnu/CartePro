@@ -5,7 +5,7 @@
 // this file is used to seed the database with a test user
 //
 
-package main
+package database
 
 import (
 	"log"
@@ -13,9 +13,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func seedTestUser() {
+func SeedTestClient() {
 	var count int64
-	db.Model(&User{}).Count(&count)
+	DB.Model(&User{}).Count(&count)
 	if count > 0 {
 		log.Println("Database already seeded, skipping test user creation")
 		return
@@ -31,8 +31,17 @@ func seedTestUser() {
 		PasswordHash: string(hash),
 		Role:         RoleClient,
 	}
-	if err := db.Create(&user).Error; err != nil {
+	if err := DB.Create(&user).Error; err != nil {
 		log.Fatalf("failed to seed test user: %v", err)
+	}
+
+	client := Client{
+		UserID:  user.ID,
+		Name:    "jack",
+		Balance: 1000, // Set an initial balance for the test client (in cents, so 10 euros)
+	}
+	if err := DB.Create(&client).Error; err != nil {
+		log.Fatalf("failed to seed test client: %v", err)
 	}
 
 	log.Printf("seeded test user -> email: test@cartepro.dev password: password123")

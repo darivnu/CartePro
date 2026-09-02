@@ -1,4 +1,4 @@
-module github.com/darivnu/cartepro
+module cartepro
 
 go 1.25.0
 
