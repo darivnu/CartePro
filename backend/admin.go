@@ -54,6 +54,7 @@ func handleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 
 	admin := Admin{
 		Name: req.Name,
+		User: user,
 	}
 
 	if err := db.Create(&admin).Error; err != nil {
