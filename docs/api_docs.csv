@@ -2,9 +2,9 @@ Type,api,input (json),response (json),description,status code
 Auth,POST /auth/login,"{""email"",""password""}","{""user"": {""id"",""email"",""role""}}","Logs in and starts a session (session cookie set via Set-Cookie header, not in the body)",200
 Auth,POST /auth/logout,—,—,Ends the current session,204
 Auth,GET /auth/me,—,"{""id"",""role"",""email""}",Returns the currently authenticated user,200
-Employee,GET /clients/me/balance,—,"{""balance"",""currency"",""updated_at""}",Returns the employee's current balance,200
-Employee,GET /clients/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the employee,200
-Employee,POST /clients/me/qrcode,—,"{""token"",""qr_payload"",""expires_at""}",Generates a short-lived signed QR payment token,201
+Client,GET /clients/me/balance,—,"{""balance"",""currency"",""updated_at""}",Returns the client's current balance,200
+Client,GET /clients/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the client,200
+Client,POST /clients/me/qrcode,—,"{""token"",""qr_payload"",""expires_at""}",Generates a short-lived signed QR payment token,201
 Partner,POST /partners/register,"{""business_name"",""siret"",""category"",""address"",""region"",""contact_email"",""password""}","{""partner"": {...}}",Registers a new partner account (status: pending),201
 Partner,GET /partners/me,—,"{""partner"": {...}}",Returns the logged-in partner's own profile,200
 Partner,PATCH /partners/me,{editable profile fields},"{""partner"": {...}}",Updates the partner's own profile,200
@@ -18,7 +18,7 @@ Admin,POST /admin/partners/{id}/approve,—,"{""partner"": {...}}",Approves a pe
 Admin,POST /admin/partners/{id}/reject,"{""reason""}","{""partner"": {...}}",Rejects a pending partner (status → rejected),200
 Admin,PATCH /admin/partners/{id}/status,"{""status""}","{""partner"": {...}}",Changes a partner's lifecycle status,200
 Admin,GET /admin/dashboard,query: period,"{""total_transaction_volume"",""active_partners_count"",""transaction_count"",""geographic_breakdown""}",National stats dashboard,200
-Admin,POST /admin/topups,"{""employee_id"",""amount"",""reference""}","{""transaction"": {...}}",Credits an employee's balance,201
-Admin,GET /admin/client,"query: employer_id, page, limit","{""data"":[...],""meta"":{...}}","Lists employees, filterable by employer",200
-Admin,GET /admin/clients/{id},—,"{""employee"": {...}}",Returns employee detail incl. balance and top-up history,200
-Integrations,GET /integrations/v1/employees/{employee_id}/balance,header: X-API-Key,"{""employee_id"",""balance"",""currency"",""as_of""}",Third-party (HRIS) balance lookup,200
+Admin,POST /admin/topups,"{""client_id"",""amount"",""reference""}","{""transaction"": {...}}",Credits a client's balance,201
+Admin,GET /admin/client,"query: employer_id, page, limit","{""data"":[...],""meta"":{...}}","Lists clients, filterable by employer",200
+Admin,GET /admin/clients/{id},—,"{""client"": {...}}",Returns client detail incl. balance and top-up history,200
+Integrations,GET /integrations/v1/clients/{client_id}/balance,header: X-API-Key,"{""client_id"",""balance"",""currency"",""as_of""}",Third-party (HRIS) balance lookup,200
