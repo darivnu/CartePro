@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/darivnu/cartepro/database"
+	"cartepro/database"
 )
 
 const sessionCookieName = "session_token"

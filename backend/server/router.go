@@ -10,7 +10,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/darivnu/cartepro/users"
+	"cartepro/users"
 )
 
 func NewRouter() *http.ServeMux {

@@ -11,8 +11,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/darivnu/cartepro/database"
-	"github.com/darivnu/cartepro/server"
+	"cartepro/database"
+	"cartepro/server"
 )
 
 func main() {

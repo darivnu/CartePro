@@ -13,7 +13,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/darivnu/cartepro/database"
+	"cartepro/database"
 )
 
 type AdminRegistrationRequest struct {
