@@ -113,18 +113,19 @@ const (
 )
 
 type Transaction struct {
-	ID         uint `gorm:"primaryKey"`
-	ClientID   uint
-	Client     Client `gorm:"foreignKey:ClientID"`
-	PartnerID  *uint
-	Partner    *Partner `gorm:"foreignKey:PartnerID"`
-	EmployerID *uint
-	Employer   *Employer `gorm:"foreignKey:EmployerID"`
-	QrTokenID  *uint
-	QrToken    *QrToken `gorm:"foreignKey:QrTokenID"`
-	Amount     int64
-	CreatedAt  time.Time
-	Type       TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
+	ID             uint `gorm:"primaryKey"`
+	ClientID       uint
+	Client         Client `gorm:"foreignKey:ClientID"`
+	PartnerID      *uint
+	Partner        *Partner `gorm:"foreignKey:PartnerID"`
+	EmployerID     *uint
+	Employer       *Employer `gorm:"foreignKey:EmployerID"`
+	QrTokenID      *uint
+	QrToken        *QrToken `gorm:"foreignKey:QrTokenID"`
+	IdempotencyKey *string  `gorm:"uniqueIndex"` //nil for topups or admin stuff
+	Amount         int64
+	CreatedAt      time.Time
+	Type           TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
 }
 
 func InitDatabase() {
