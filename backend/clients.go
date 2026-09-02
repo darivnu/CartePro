@@ -9,6 +9,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -36,6 +37,20 @@ func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//check if employer exists
+	var employer Employer
+	var employer_exists bool = true
+	if err := db.First(&employer, req.EmployerID).Error; err != nil {
+		employer_exists = false
+		log.Printf("Employer with ID %d does not exist, proceeding without employer association", req.EmployerID)
+	}
+
+	//if employer does not exist, check if there the one they sent is 0 (so its a placeholder meant to be updated later). if it isn't, the error
+	if req.EmployerID != 0 && !employer_exists {
+		http.Error(w, "Employer not found", http.StatusBadRequest)
+		return
+	}
+
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -54,12 +69,6 @@ func handleClientRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//check if employer exists
-	var employer Employer
-	var employer_exists bool = true
-	if err := db.First(&employer, req.EmployerID).Error; err != nil {
-		employer_exists = false
-	}
 	var client Client
 	if employer_exists {
 		client = Client{
