@@ -160,11 +160,13 @@ func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetOwnPartnerInfo(w http.ResponseWriter, r *http.Request) {
-	_, partner, err := server.GetPartnerFromSession(r)
+	user, partner, err := server.GetPartnerFromSession(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+
+	partner.User = *user //we add the user to the partner so that we can return the email in the response
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
