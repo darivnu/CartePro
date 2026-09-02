@@ -9,7 +9,7 @@ Client,POST /clients/register,"{""email"",""password"",""name"",""employer_id""}
 Partner,POST /partners/register,"{""business_name"",""siret"",""category"",""address"",""region"",""contact_email"",""password""}","{""partner"": {...}}",Registers a new partner account (status: pending),201
 Partner,GET /partners/me,—,"{""partner"": {...}}",Returns the logged-in partner's own profile,200
 Partner,PATCH /partners/me,{editable profile fields},"{""partner"": {...}}",Updates the partner's own profile,200
-Partner,POST /partners/me/transactions,"{""qr_payload"",""amount"",""idempotency_key""}","{""transaction"": {...}}",Validates a QR code and records the payment,201
+Partner,POST /partners/me/validate,"{""qr_payload"",""amount"",""idempotency_key""}","{""transaction"": {...}}",Validates a QR code and records the payment,201
 Partner,GET /partners/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated list of transactions received by the partner,200
 Partner,GET /partners/me/dashboard,query: period,"{""total_received"",""transaction_count"",""by_day""}",Financial summary dashboard for the partner,200
 Shared,GET /partners,"query: search, category, page, limit","{""data"":[...],""meta"":{...}}",Browsable/searchable catalog of active partners,200
