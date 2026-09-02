@@ -26,6 +26,7 @@ func NewRouter() *http.ServeMux {
 	//partner
 	mux.HandleFunc("POST /partners/register", users.HandlePartnerRegistration)
 	mux.HandleFunc("POST /partners/me/validate", users.HandleQrCodeValidation)
+	mux.HandleFunc("GET /partners/{id}", users.HandleGetSpecificPartner)
 
 	//client
 	mux.HandleFunc("POST /clients/register", users.HandleClientRegistration)
