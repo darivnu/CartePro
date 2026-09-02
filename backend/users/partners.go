@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -88,4 +89,71 @@ func HandlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 
+}
+
+func getPartnerByUserID(userID uint) (*database.User, *database.Partner, error) {
+	var user database.User
+	var partner database.Partner
+	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		return nil, nil, err
+	}
+	if err := database.DB.Where("user_id = ?", userID).First(&partner).Error; err != nil {
+		return nil, nil, err
+	}
+	return &user, &partner, nil
+}
+
+func getPartnerByID(partnerID uint) (*database.User, *database.Partner, error) {
+	var partner database.Partner
+	var user database.User
+	if err := database.DB.First(&partner, partnerID).Error; err != nil {
+		return nil, nil, err
+	}
+	if err := database.DB.First(&user, partner.UserID).Error; err != nil {
+		return nil, nil, err
+	}
+	return &user, &partner, nil
+}
+
+func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid partner ID", http.StatusBadRequest)
+		return
+	}
+
+	user, partner, err := getPartnerByID(uint(id))
+	if err != nil {
+		http.Error(w, "Partner not found", http.StatusNotFound)
+		return
+	}
+
+	//we want to return only specific fields of the partner, not all of them, so we create a new struct to hold only the fields we want to return
+
+	type PartnerResponse struct {
+		ID           uint   `json:"id"`
+		BusinessName string `json:"business_name"`
+		Siret        string `json:"siret"`
+		Category     string `json:"category"`
+		Address      string `json:"address"`
+		Region       string `json:"region"`
+		Email        string `json:"email"`
+		Status       string `json:"status"`
+		MinisterPick bool   `json:"minister_pick"`
+	}
+	var response PartnerResponse
+	response.ID = partner.ID
+	response.BusinessName = partner.BusinessName
+	response.Siret = partner.Siret
+	response.Category = partner.Category
+	response.Address = partner.Address
+	response.Region = partner.Region
+	response.Email = user.Email
+	response.Status = string(partner.Status)
+	response.MinisterPick = partner.MinisterPick
+
+	//now we encode response to json like : {"partner": { ... }}
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"partner": response})
 }
