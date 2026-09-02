@@ -21,7 +21,7 @@ func main() {
 	database.InitDatabase()
 
 	mux := routing.NewRouter()
-	database.SeedTestUser()
+	database.SeedTestClient()
 
 	addr := ":4242"
 	log.Printf("Starting server on %s", addr)
