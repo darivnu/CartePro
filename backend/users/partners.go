@@ -89,3 +89,21 @@ func HandlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 }
+
+func getPartnerByUserID(userID uint) (*database.Partner, error) {
+	var partner database.Partner
+	if err := database.DB.Where("user_id = ?", userID).First(&partner).Error; err != nil {
+		return nil, err
+	}
+	return &partner, nil
+}
+
+func getPartnerByID(partnerID uint) (*database.Partner, error) {
+	var partner database.Partner
+	if err := database.DB.First(&partner, partnerID).Error; err != nil {
+		return nil, err
+	}
+	return &partner, nil
+}
+
+
