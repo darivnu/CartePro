@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"cartepro/database"
+	"cartepro/server"
 )
 
 type PartnerRegistrationRequest struct {
@@ -131,15 +132,15 @@ func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
 	//we want to return only specific fields of the partner, not all of them, so we create a new struct to hold only the fields we want to return
 
 	type PartnerResponse struct {
-		ID           uint   `json:"id"`
-		BusinessName string `json:"business_name"`
-		Siret        string `json:"siret"`
-		Category     string `json:"category"`
-		Address      string `json:"address"`
-		Region       string `json:"region"`
-		Email        string `json:"email"`
-		Status       string `json:"status"`
-		MinisterPick bool   `json:"minister_pick"`
+		ID           uint   `json:"ID"`
+		BusinessName string `json:"BusinessName"`
+		Siret        string `json:"Siret"`
+		Category     string `json:"Category"`
+		Address      string `json:"Address"`
+		Region       string `json:"Region"`
+		Email        string `json:"Email"`
+		Status       string `json:"Status"`
+		MinisterPick bool   `json:"MinisterPick"`
 	}
 	var response PartnerResponse
 	response.ID = partner.ID
@@ -156,4 +157,24 @@ func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"partner": response})
+}
+
+// withoutPasswordHash returns a copy of user with PasswordHash cleared, so it's safe to serialize.
+func withoutPasswordHash(user database.User) database.User {
+	user.PasswordHash = ""
+	return user
+}
+
+func HandleGetOwnPartnerInfo(w http.ResponseWriter, r *http.Request) {
+	user, partner, err := server.GetPartnerFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	partner.User = withoutPasswordHash(*user) //we add the user to the partner so that we can return the email in the response, without leaking the password hash
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"partner": partner})
 }
