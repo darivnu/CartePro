@@ -44,6 +44,14 @@ type Session struct {
 	ExpiresAt time.Time
 }
 
+type Admin struct {
+	ID        uint `gorm:"primaryKey"`
+	UserID    uint
+	User      User `gorm:"foreignKey:UserID"`
+	Name      string
+	CreatedAt time.Time
+}
+
 type PartnerStatus string
 
 const (
@@ -68,20 +76,23 @@ type Partner struct {
 }
 
 type Client struct {
-	ID        uint `gorm:"primaryKey"`
-	UserID    uint
-	User      User `gorm:"foreignKey:UserID"`
-	Name      string
-	Balance   int64 `gorm:"default:0"` //stored in cents
-	CreatedAt time.Time
+	ID         uint `gorm:"primaryKey"`
+	UserID     uint
+	User       User `gorm:"foreignKey:UserID"`
+	EmployerID uint
+	Employer   Employer `gorm:"foreignKey:EmployerID"`
+	Name       string
+	Balance    int64 `gorm:"default:0"` //stored in cents
+	CreatedAt  time.Time
 }
 
 // the employer is not a real user rn, and is just a placeholder. the admin manages all employers.
 // it is however the employer that tops up the client balance (through the admin panel).
 // therefore the transaction table will have an optional foreign key to the employer should it be a client topup transaction.
 type Employer struct {
-	ID        uint   `gorm:"primaryKey"`
-	Name      string `gorm:"unique"`
+	ID        uint     `gorm:"primaryKey"`
+	Name      string   `gorm:"unique"`
+	Clients   []Client `gorm:"foreignKey:EmployerId"`
 	CreatedAt time.Time
 }
 type QrToken struct {
@@ -137,7 +148,7 @@ func initDatabase() {
 	}
 	log.Println("Database connection established")
 
-	if err := db.AutoMigrate(&User{}, &Session{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &Session{}, &Partner{}, &Client{}, &QrToken{}, &Transaction{}, &Employer{}, &Admin{}); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 	log.Println("Database migration completed")

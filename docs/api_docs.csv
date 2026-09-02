@@ -5,6 +5,7 @@ Auth,GET /auth/me,—,"{""id"",""role"",""email""}",Returns the currently authen
 Client,GET /clients/me/balance,—,"{""balance"",""currency"",""updated_at""}",Returns the client's current balance,200
 Client,GET /clients/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the client,200
 Client,POST /clients/me/qrcode,—,"{""token"",""qr_payload"",""expires_at""}",Generates a short-lived signed QR payment token,201
+Client,POST /clients/register,"{""email"",""password"",""name"",""employer_id""}","{""client"": {...}}",Registers a new client account,201
 Partner,POST /partners/register,"{""business_name"",""siret"",""category"",""address"",""region"",""contact_email"",""password""}","{""partner"": {...}}",Registers a new partner account (status: pending),201
 Partner,GET /partners/me,—,"{""partner"": {...}}",Returns the logged-in partner's own profile,200
 Partner,PATCH /partners/me,{editable profile fields},"{""partner"": {...}}",Updates the partner's own profile,200
@@ -18,6 +19,7 @@ Admin,POST /admin/partners/{id}/approve,—,"{""partner"": {...}}",Approves a pe
 Admin,POST /admin/partners/{id}/reject,"{""reason""}","{""partner"": {...}}",Rejects a pending partner (status → rejected),200
 Admin,PATCH /admin/partners/{id}/status,"{""status""}","{""partner"": {...}}",Changes a partner's lifecycle status,200
 Admin,GET /admin/dashboard,query: period,"{""total_transaction_volume"",""active_partners_count"",""transaction_count"",""geographic_breakdown""}",National stats dashboard,200
+Admin,POST /admin/register,"{""email"",""password"",""name""}","{""admin"": {...}}",Registers a new admin account,201
 Admin,POST /admin/topups,"{""client_id"",""amount"",""reference""}","{""transaction"": {...}}",Credits a client's balance,201
 Admin,GET /admin/client,"query: employer_id, page, limit","{""data"":[...],""meta"":{...}}","Lists clients, filterable by employer",200
 Admin,GET /admin/clients/{id},—,"{""client"": {...}}",Returns client detail incl. balance and top-up history,200

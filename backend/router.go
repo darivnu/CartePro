@@ -23,5 +23,8 @@ func newRouter() *http.ServeMux {
 	//partner
 	mux.HandleFunc("POST /partners/register", handlePartnerRegistration)
 
+	//client
+	mux.HandleFunc("POST /clients/register", handleClientRegistration)
+
 	return mux
 }
