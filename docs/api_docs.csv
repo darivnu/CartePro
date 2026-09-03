@@ -21,7 +21,7 @@ Admin,PATCH /admin/partners/{id}/status,"{""status""}","{""partner"": {...}}",Ch
 Admin,PATCH /admin/partners/{id}/minister-pick,"{""minister_pick""}","{""partner"": {...}}","Sets or clears the partner's ""Minister's Pick"" highlight, shown on the employee homepage",200,false,false
 Admin,GET /admin/dashboard,query: period,"{""total_transaction_volume"",""active_partners_count"",""transaction_count"",""geographic_breakdown""}",National stats dashboard,200,false,false
 Admin,POST /admin/register,"{""email"",""password"",""name""}","{""admin"": {...}}",Registers a new admin account,201,false,true
-Admin,POST /admin/topups,"{""client_id"",""amount"", ""comment""}","{""transaction"": {...}}",Credits a client's balance. comment is an optional comment that the admin can add to the transaction,201,false,false
+Admin,POST /admin/topups,"{""client_id"",""amount"", ""comment""}","{""transaction"": {...}}",Credits a client's balance. comment is an optional comment that the admin can add to the transaction,201,false,true
 Admin,POST /admin/transactions/{id}/cancel,"{""reason""}","{""transaction"": {...}}","Cancels a validated transaction by creating a compensating reversal transaction that credits the balance back; the original transaction record is left untouched",201,false,false
 Admin,GET /admin/client,"query: employer_id, page, limit","{""data"":[...],""meta"":{...}}","Lists clients, filterable by employer",200,false,false
 Admin,GET /admin/clients/{id},—,"{""client"": {...}}",Returns client detail incl. balance and top-up history,200,false,false
