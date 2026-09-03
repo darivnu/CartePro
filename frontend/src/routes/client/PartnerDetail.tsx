@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { usePartner } from '../../partners/usePartnersData'
+import { Wordmark } from '@/components/Wordmark'
 
 export function PartnerDetail() {
   const { id } = useParams()
@@ -9,9 +10,7 @@ export function PartnerDetail() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-brand-blue">
-            Ticket Tout
-          </p>
+          <Wordmark />
           <Link
             to="/client/partners"
             className="text-label-caps uppercase font-display text-ink-600"

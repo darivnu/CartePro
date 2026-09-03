@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { usePartners } from '../../partners/usePartnersData'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Wordmark } from '@/components/Wordmark'
 
 export function PartnerCatalog() {
   const [search, setSearch] = useState('')
@@ -28,9 +29,7 @@ export function PartnerCatalog() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-brand-blue">
-            Ticket Tout
-          </p>
+          <Wordmark />
           <Link
             to="/client"
             className="text-label-caps uppercase font-display text-ink-600"

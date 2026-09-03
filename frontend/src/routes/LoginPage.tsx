@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Wordmark } from '@/components/Wordmark'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
@@ -27,7 +28,7 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-200 p-4">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
-        <p className="text-wordmark uppercase font-display text-brand-blue">Ticket Tout</p>
+        <Wordmark />
         <Card className="w-full rounded-[12px] border border-surface-400 shadow-card-highlight ring-0">
           <CardHeader>
             <CardTitle className="text-[1.5rem] leading-[1.15] tracking-[-0.02em] font-bold text-brand-blue">
