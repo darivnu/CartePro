@@ -8,11 +8,11 @@ need a reachable Postgres instance and a static file server for the frontend.
 
 - `backend/cartepro` — statically linked Linux (amd64) backend binary.
 - `frontend/dist/` — built frontend static assets.
-- `.env.example` — reference environment variables for the backend.
+- `env.example` — reference environment variables for the backend.
 
 ## Running
 
-1. Copy `.env.example` to `.env` and point `DB_HOST`/`DB_PORT`/`DB_USER`/
+1. Copy `env.example` to `.env` and point `DB_HOST`/`DB_PORT`/`DB_USER`/
    `DB_PASSWORD`/`DB_NAME` at a running Postgres instance.
 
 2. Start the backend (reads its config from `.env` in the working directory,

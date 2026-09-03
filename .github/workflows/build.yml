@@ -40,8 +40,10 @@ jobs:
           mkdir -p artifact/frontend artifact/backend
           cp -r frontend/dist artifact/frontend/dist
           cp backend/cartepro artifact/backend/cartepro
-          cp .env.example artifact/.env.example
+          cp .env.example artifact/env.example
           cp .github/ARTIFACT_README.md artifact/README.md
+          cp .github/run_artefact.sh artifact/RUN_ME.sh
+          chmod +x artifact/RUN_ME.sh
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
