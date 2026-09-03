@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import { RoleGuard } from './routes/RoleGuard'
 import { ClientHome } from './routes/client/ClientHome'
+import { PartnerCatalog } from './routes/client/PartnerCatalog'
+import { PartnerDetail } from './routes/client/PartnerDetail'
 import { PartnerHome } from './routes/partner/PartnerHome'
 import { AdminHome } from './routes/admin/AdminHome'
 import { LoginPage } from './routes/LoginPage'
@@ -14,6 +16,22 @@ function App() {
         element={
           <RoleGuard role="client">
             <ClientHome />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/client/partners"
+        element={
+          <RoleGuard role="client">
+            <PartnerCatalog />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/client/partners/:id"
+        element={
+          <RoleGuard role="client">
+            <PartnerDetail />
           </RoleGuard>
         }
       />
