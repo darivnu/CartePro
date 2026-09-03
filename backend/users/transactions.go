@@ -163,13 +163,14 @@ func HandleGetClientOwnTransactions(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"transactions": transactions,
+		"data": transactions,
 		"meta": map[string]interface{}{
-			"page":  page,
-			"limit": limit,
-			"total": total,
-			"from":  from,
-			"to":    to,
+			"page":        page,
+			"limit":       limit,
+			"total":       total,
+			"total_pages": (total + int64(limit) - 1) / int64(limit),
+			"from":        from,
+			"to":          to,
 		},
 	})
 }
