@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLogin } from '../auth/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -83,6 +83,9 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
+        <Link to="/terms" className="text-caption font-sans text-ink-600">
+          Terms of Use
+        </Link>
       </div>
     </div>
   )
