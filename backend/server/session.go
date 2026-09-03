@@ -11,6 +11,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
+	"os"
 	"time"
 
 	"cartepro/database"
@@ -18,6 +19,12 @@ import (
 
 const sessionCookieName = "session_token"
 const sessionDuration = 7 * 24 * time.Hour
+
+//cookieSecure is false by default so local docker-compose (plain HTTP) keeps working;
+//set COOKIE_SECURE=true once the API is served over HTTPS (e.g. on Vercel).
+func cookieSecure() bool {
+	return os.Getenv("COOKIE_SECURE") == "true"
+}
 
 func generateSessionToken() (string, error) {
 	b := make([]byte, 32)
@@ -52,7 +59,7 @@ func setSessionCookie(w http.ResponseWriter, session *database.Session) {
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode, //samesitelax mode is a security feature that prevents cross-site request forgery
-		// Secure: true, // enable once the API is served over HTTPS
+		Secure:   cookieSecure(),
 	})
 }
 
@@ -62,7 +69,7 @@ func clearSessionCookie(w http.ResponseWriter) {
 		Value:    "",
 		MaxAge:   -1,
 		Path:     "/",
-		Secure:   false,
+		Secure:   cookieSecure(),
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
