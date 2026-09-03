@@ -3,7 +3,7 @@ Auth,POST /auth/login,"{""email"",""password""}","{""user"": {""id"",""email"","
 Auth,POST /auth/logout,—,—,Ends the current session,204,false,true
 Auth,GET /auth/me,—,"{""id"",""role"",""email""}",Returns the currently authenticated user,200,false,true
 Client,GET /clients/me/balance,—,"{""balance"",""updated_at""}",Returns the client's current balance,200,false,true
-Client,GET /clients/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the client,200,false,false
+Client,GET /clients/me/transactions,"query: page, limit, from, to","{""data"":[...],""meta"":{...}}",Paginated transaction history for the client. from and to are time based.,200,false,false
 Client,POST /clients/me/qrcode,—,"{""token"",""qr_payload"",""expires_at""}",Generates a short-lived signed QR payment token,201,false,true
 Client,POST /clients/register,"{""email"",""password"",""name"",""employer_id""}","{""client"": {...}}","Registers a new client account. the employer id is optional (just write 0), but if it is not 0 and we find no match, we return error",201,false,true
 Partner,POST /partners/register,"{""business_name"",""siret"",""category"",""address"",""region"",""contact_email"",""password""}","{""partner"": {...}}",Registers a new partner account (status: pending),201,false,true
