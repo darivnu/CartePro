@@ -15,6 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"cartepro/database"
+	"cartepro/server"
 )
 
 type AdminRegistrationRequest struct {
@@ -98,4 +99,52 @@ func HandleApprovePartner(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"partner": partner,
 	})
+}
+
+type AdminTopupRequest struct {
+	ClientID       uint   `json:"client_id"`
+	Amount         int64  `json:"amount"`
+	Comment        string `json:"comment"`
+}
+
+func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
+	user, admin, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	var req AdminTopupRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	var client database.Client
+	if err := database.DB.First(&client, req.ClientID).Error; err != nil {
+		http.Error(w, "Client not found", http.StatusNotFound)
+		return
+	}
+
+	client.Balance += req.Amount
+	database.DB.Save(&client)
+
+	transaction := database.Transaction{
+		ClientID:       client.ID,
+		PartnerID:      nil,
+		QrTokenID:      nil,
+		Amount:         req.Amount,
+		Type:           database.TransactionTypeTopup,
+		Comment:        &req.Comment,
+		AdminID:        &admin.ID,
+	}
+	database.DB.Create(&transaction)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
 }
