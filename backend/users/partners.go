@@ -178,3 +178,76 @@ func HandleGetOwnPartnerInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"partner": partner})
 }
+
+type PublicPartnerResponse struct {
+	ID           uint   `json:"ID"`
+	BusinessName string `json:"BusinessName"`
+	Category     string `json:"Category"`
+	Address      string `json:"Address"`
+	Region       string `json:"Region"`
+	MinisterPick bool   `json:"MinisterPick"`
+}
+
+type PartnersMeta struct {
+	Page  int   `json:"page"`
+	Limit int   `json:"limit"`
+	Total int64 `json:"total"`
+}
+
+func HandleGetMultiplePartners(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	search := query.Get("search")
+	category := query.Get("category")
+
+	page, err := strconv.Atoi(query.Get("page"))
+	if err != nil || page < 1 {
+		page = 1 //the page is which chunk we want (defined by limit), so if we want the first chunk, we set page to 1)
+	}
+
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil || limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	db := database.DB.Model(&database.Partner{}).Where("status = ?", database.StatusApproved)
+	if search != "" {
+		db = db.Where("business_name LIKE ?", "%"+search+"%")
+	}
+	if category != "" {
+		db = db.Where("category = ?", category)
+	}
+
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		http.Error(w, "Failed to count partners", http.StatusInternalServerError)
+		return
+	}
+
+	var partners []database.Partner
+	if err := db.Order("id").Offset((page - 1) * limit).Limit(limit).Find(&partners).Error; err != nil {
+		http.Error(w, "Failed to fetch partners", http.StatusInternalServerError)
+		return
+	}
+
+	data := make([]PublicPartnerResponse, len(partners))
+	for i, partner := range partners {
+		data[i] = PublicPartnerResponse{
+			ID:           partner.ID,
+			BusinessName: partner.BusinessName,
+			Category:     partner.Category,
+			Address:      partner.Address,
+			Region:       partner.Region,
+			MinisterPick: partner.MinisterPick,
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"data": data,
+		"meta": PartnersMeta{Page: page, Limit: limit, Total: total},
+	})
+}
