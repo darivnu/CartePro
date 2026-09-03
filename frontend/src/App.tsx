@@ -7,6 +7,7 @@ import { PartnerHome } from './routes/partner/PartnerHome'
 import { AdminHome } from './routes/admin/AdminHome'
 import { LoginPage } from './routes/LoginPage'
 import { TermsOfUse } from './routes/TermsOfUse'
+import { AccessibilityStatement } from './routes/AccessibilityStatement'
 import { RootRedirect } from './routes/RootRedirect'
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
       element={<LoginPage />}
       />
       <Route path="/terms" element={<TermsOfUse />} />
+      <Route path="/accessibility" element={<AccessibilityStatement />} />
       <Route path="/" element={<RootRedirect />} />
     </Routes>
   )
