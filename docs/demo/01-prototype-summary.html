@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ticket Tout — Prototype Summary</title>
+<style>
+  :root{
+    --brand-blue:#1B3A6B;
+    --surface:#EDEEF0;
+    --card:#FFFFFF;
+    --ink:#1B1E22;
+    --ink-600:#5B6169;
+    --danger:#A02A20;
+    --ok:#1E7F4C;
+    --warn:#8A5A00;
+    --line:#DCDFE3;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--surface);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;}
+  .page{max-width:760px;margin:0 auto;padding:20px 32px 30px;}
+  .masthead{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+  .logo{width:30px;height:30px;flex:none;display:block;}
+  .wordmark{font-weight:800;letter-spacing:.08em;font-size:14px;color:var(--brand-blue);}
+  .kicker{color:var(--ink-600);font-size:12px;margin:0 0 12px;}
+  h1{font-size:23px;line-height:1.2;margin:4px 0 4px;color:var(--brand-blue);}
+  .sub{font-size:13px;color:var(--ink-600);margin:0 0 14px;}
+  .readtime{display:inline-block;background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:3px 12px;font-size:11px;color:var(--ink-600);margin-bottom:16px;}
+  section{margin-bottom:14px;}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--brand-blue);
+    margin:0 0 8px;border-bottom:2px solid var(--line);padding-bottom:4px;}
+  ul.status{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  ul.status li{background:var(--card);border:1px solid var(--line);border-radius:9px;
+    padding:7px 12px;font-size:13px;line-height:1.4;display:flex;gap:9px;}
+  .mark{flex:none;font-weight:800;width:20px;text-align:center;}
+  .ok .mark{color:var(--ok);}
+  .no .mark{color:var(--danger);}
+  .soon .mark{color:var(--brand-blue);}
+  b{color:var(--ink);}
+  .callout{background:#FCEFEA;border:1px solid #E7B9AC;border-radius:9px;padding:9px 12px;
+    font-size:13px;line-height:1.4;margin-top:8px;}
+  .callout b{color:var(--danger);}
+  .footer{font-size:11px;color:var(--ink-600);margin-top:16px;border-top:1px solid var(--line);
+    padding-top:8px;}
+  .pagebreak{break-before:page;page-break-before:always;}
+  ul.status li{break-inside:avoid;page-break-inside:avoid;}
+  .callout{break-inside:avoid;page-break-inside:avoid;}
+  @media print{
+    body{background:#fff;}
+    .page{padding:0;max-width:none;}
+  }
+  @page{ size:A4; margin:16mm; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead"><svg class="logo" viewBox="0 0 64 64"><path d="M14 0 H50 A14 14 0 0 1 64 14 V26.5 A5.5 5.5 0 0 0 64 37.5 V50 A14 14 0 0 1 50 64 H14 A14 14 0 0 1 0 50 V37.5 A5.5 5.5 0 0 0 0 26.5 V14 A14 14 0 0 1 14 0 Z" fill="#1B3A6B"/><rect x="27.5" y="21" width="9" height="28" rx="1.5" fill="#FBF3E7"/><rect x="15" y="15" width="34" height="9" rx="1.5" fill="#EFA93C"/></svg><div class="wordmark">TICKET TOUT</div></div>
+  <p class="kicker">Prototype status, in plain language</p>
+  <h1>Where the app stands</h1>
+  <p class="sub">What the app actually does today — not what's planned or half-written in the code.</p>
+  <span class="readtime">⏱ under 2 minutes to read</span>
+
+  <section>
+    <h2>Works right now</h2>
+    <ul class="status">
+      <li class="ok"><span class="mark">✓</span><span><b>Logging in</b> as a citizen (client) account — reliable, fast.</span></li>
+      <li class="ok"><span class="mark">✓</span><span><b>Seeing your balance</b> on the home screen, clearly labelled "Simulation — no real monetary value" everywhere money appears.</span></li>
+      <li class="ok"><span class="mark">✓</span><span><b>Generating a payment QR code</b> — a real, scannable code appears instantly with a live countdown. It's single-use and stays valid for about half an hour.</span></li>
+      <li class="ok"><span class="mark">✓</span><span><b>Browsing partner businesses</b> — a real list of 6 approved shops (a bakery, a pharmacy, a garage, a bookshop, a hairdresser, plus one generic test entry), each with category and region.</span></li>
+      <li class="ok"><span class="mark">✓</span><span><b>Searching and filtering</b> that list by name or category — updates live as you type.</span></li>
+      <li class="ok"><span class="mark">✓</span><span><b>Opening a business's detail page</b> — name, category, region, address.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Not built / not working yet</h2>
+    <ul class="status">
+      <li class="no"><span class="mark">✕</span><span><b>Purchase history on the home screen</b> isn't available yet — that part of the server hasn't been finished.</span></li>
+      <li class="no"><span class="mark">✕</span><span><b>The shop (partner) side</b> exists as a login only — after signing in it's a blank page with just a logout button. No screen yet to scan or accept a citizen's QR code.</span></li>
+      <li class="no"><span class="mark">✕</span><span><b>The oversight (admin) side</b> is the same — login works, but the screen behind it is blank. No screen yet to review or approve new shop applications.</span></li>
+      <li class="no"><span class="mark">✕</span><span><b>Signing up for a new account</b> isn't available in the app at all. Every account (citizen, shop, or admin) has to be created ahead of time by the dev team.</span></li>
+      <li class="no"><span class="mark">✕</span><span><b>Adding funds to a balance</b> isn't available anywhere yet — balances are fixed at whatever they were set to when the account was created.</span></li>
+    </ul>
+  </section>
+
+  <div class="pagebreak"></div>
+
+  <section>
+    <h2>Next week: complete</h2>
+    <ul class="status">
+      <li class="soon"><span class="mark">✓</span><span><b>Full transaction flow</b> — a citizen's QR code scanned and validated by a shop, end to end.</span></li>
+      <li class="soon"><span class="mark">✓</span><span><b>The shop (partner) space</b> — validating a payment, a financial dashboard, browsing the partner catalog.</span></li>
+      <li class="soon"><span class="mark">✓</span><span><b>The oversight (admin) space</b> — approving new shop applications, a national dashboard, and "Minister's Pick" to highlight a partner on the citizen home screen.</span></li>
+      <li class="soon"><span class="mark">✓</span><span><b>Purchase history</b> on the citizen home screen.</span></li>
+      <li class="soon"><span class="mark">✓</span><span><b>Technical documentation and project retrospective.</b></span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Good to know</h2>
+    <ul class="status">
+      <li class="ok"><span class="mark">•</span><span>The rebrand from "CartePro" to <b>"Ticket Tout"</b> is complete — the running app shows the new name and logo everywhere, no old branding left.</span></li>
+    </ul>
+  </section>
+
+  <div class="footer">Ticket Tout demo pack · see the companion user guide and plan B sheet</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ticket Tout — User Guide</title>
+<style>
+  :root{
+    --brand-blue:#1B3A6B;
+    --surface:#EDEEF0;
+    --card:#FFFFFF;
+    --ink:#1B1E22;
+    --ink-600:#5B6169;
+    --danger:#A02A20;
+    --line:#DCDFE3;
+    --accent:#EFF3F8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--surface);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;}
+  .page{max-width:900px;margin:0 auto;padding:28px 32px 40px;}
+  .masthead{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .logo{width:34px;height:34px;flex:none;display:block;}
+  .wordmark{font-weight:800;letter-spacing:.08em;font-size:15px;color:var(--brand-blue);}
+  .kicker{color:var(--ink-600);font-size:13px;margin:0 0 18px;}
+  h1{font-size:26px;line-height:1.2;margin:6px 0 4px;color:var(--brand-blue);}
+  .sub{font-size:14px;color:var(--ink-600);margin:0 0 26px;max-width:640px;}
+  .step{display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px;margin-bottom:16px;}
+  .shot{width:220px;height:340px;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    background:var(--surface);display:flex;align-items:flex-start;justify-content:center;}
+  .shot img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+    border-radius:999px;background:var(--brand-blue);color:#fff;font-weight:800;font-size:14px;
+    margin-right:8px;}
+  .step h3{font-size:17px;margin:0 0 8px;color:var(--brand-blue);display:flex;align-items:center;}
+  .step p{font-size:14.5px;line-height:1.55;margin:0 0 8px;}
+  .step p.tap{font-weight:600;}
+  .note{background:var(--accent);border-left:3px solid var(--brand-blue);border-radius:6px;
+    padding:8px 12px;font-size:13.5px;line-height:1.5;color:var(--ink);margin-top:8px;}
+  .note.warn{background:#FCEFEA;border-left-color:var(--danger);}
+  .section-title{font-size:16px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--brand-blue);margin:34px 0 14px;border-bottom:2px solid var(--line);padding-bottom:6px;}
+  .pagebreak{break-before:page;page-break-before:always;}
+  .step{break-inside:avoid;page-break-inside:avoid;}
+  @media print{ body{background:#fff;} .page{padding:0;max-width:none;} }
+  @page{ size:A4; margin:14mm; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead"><svg class="logo" viewBox="0 0 64 64"><path d="M14 0 H50 A14 14 0 0 1 64 14 V26.5 A5.5 5.5 0 0 0 64 37.5 V50 A14 14 0 0 1 50 64 H14 A14 14 0 0 1 0 50 V37.5 A5.5 5.5 0 0 0 0 26.5 V14 A14 14 0 0 1 14 0 Z" fill="#1B3A6B"/><rect x="27.5" y="21" width="9" height="28" rx="1.5" fill="#FBF3E7"/><rect x="15" y="15" width="34" height="9" rx="1.5" fill="#EFA93C"/></svg><div class="wordmark">TICKET TOUT</div></div>
+  <p class="kicker">User guide — real screenshots of the app as it runs today</p>
+  <h1>Step by step: the citizen (client) journey</h1>
+  <p class="sub">Follow these steps in order. Tap exactly what's described below.</p>
+
+  <div class="step">
+    <div class="shot"><img src="screenshots/01-login-empty.png" alt="Login screen, empty"></div>
+    <div>
+      <h3><span class="num">1</span>Log in</h3>
+      <p class="tap">Tap the <b>Email</b> field, type the account's email. Tap <b>Password</b>, type the password. Tap the black <b>LOG IN</b> button.</p>
+      <p>The screen opens on this card automatically — nothing to do before this.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="shot"><img src="screenshots/03-client-home.png" alt="Client home screen showing balance"></div>
+    <div>
+      <h3><span class="num">2</span>Home screen</h3>
+      <p>After logging in, this is the home screen. The balance is shown at the top (here, 42,50&nbsp;€), always labelled as simulated money. Two buttons below: <b>Generate QR code</b> and <b>Browse partners</b>.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="shot"><img src="screenshots/04-qr-code.png" alt="Payment QR code dialog with countdown"></div>
+    <div>
+      <h3><span class="num">3</span>Generate a payment QR code</h3>
+      <p class="tap">Tap <b>GENERATE QR CODE</b>.</p>
+      <p>A real, scannable QR code appears immediately with a countdown. Tap the <b>×</b> in the top corner (or tap outside the card) to close it.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="shot"><img src="screenshots/05-catalog.png" alt="Partner catalog list"></div>
+    <div>
+      <h3><span class="num">4</span>Browse partners</h3>
+      <p class="tap">From the home screen, tap <b>BROWSE PARTNERS</b>.</p>
+      <p>Shows every approved shop — currently 6: Test Partner, Boulangerie Martin, Pharmacie Centrale, Garage Dupont, Librairie Voltaire, Salon Elegance.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="shot"><img src="screenshots/06-catalog-search-found.png" alt="Partner search showing a result for Boulangerie"></div>
+    <div>
+      <h3><span class="num">5</span>Search a partner</h3>
+      <p class="tap">Tap the <b>Search partners</b> field and type a business name, e.g. "Boulangerie".</p>
+      <p>The list filters live as you type — no need to press enter. Safe search words: Boulangerie, Pharmacie, Garage, Librairie, Salon, Test.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="shot"><img src="screenshots/08-partner-detail.png" alt="Partner detail page"></div>
+    <div>
+      <h3><span class="num">6</span>Open a partner's details</h3>
+      <p class="tap">Tap any result in the list.</p>
+      <p>Shows the business's category, region, and address. Tap <b>BACK</b> (top right) to return to the list.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
