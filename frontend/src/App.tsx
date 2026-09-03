@@ -6,6 +6,7 @@ import { PartnerDetail } from './routes/client/PartnerDetail'
 import { PartnerHome } from './routes/partner/PartnerHome'
 import { AdminHome } from './routes/admin/AdminHome'
 import { LoginPage } from './routes/LoginPage'
+import { TermsOfUse } from './routes/TermsOfUse'
 import { RootRedirect } from './routes/RootRedirect'
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
       <Route path="/login"
       element={<LoginPage />}
       />
+      <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/" element={<RootRedirect />} />
     </Routes>
   )
