@@ -28,8 +28,8 @@ export function PartnerCatalog() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-graphite-900">
-            CartePro
+          <p className="text-wordmark uppercase font-display text-brand-blue">
+            Ticket Tout
           </p>
           <Link
             to="/client"
@@ -39,7 +39,7 @@ export function PartnerCatalog() {
           </Link>
         </div>
 
-        <h1 className="text-h1 font-display text-graphite-900">Partners</h1>
+        <h1 className="text-h1 font-display text-brand-blue">Partners</h1>
 
         <div className="flex flex-col gap-2">
           <Input
