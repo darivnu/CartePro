@@ -16,7 +16,10 @@ jobs:
         run: docker build -t cartepro-backend:${{ github.sha }} ./backend
 
       - name: Build frontend image
-        run: docker build -t cartepro-frontend:${{ github.sha }} ./frontend
+        run: |
+          docker build \
+            --build-arg VITE_API_BASE_URL=http://localhost:4242 \
+            -t cartepro-frontend:${{ github.sha }} ./frontend
 
       - name: Pull database image
         run: docker pull postgres:18-alpine
