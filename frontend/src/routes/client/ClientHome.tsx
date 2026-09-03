@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLogout } from '../../auth/useAuth'
 import { useBalance, useTransactions, useGenerateQrCode } from '../../client/useClientData'
@@ -104,6 +105,13 @@ export function ClientHome() {
           className="h-11 w-full rounded-panel text-button uppercase font-display text-primary-foreground"
         >
           Generate QR code
+        </Button>
+
+        <Button
+          asChild
+          className="h-11 w-full rounded-panel bg-surface-300 text-button uppercase font-display text-graphite-900 shadow-key-secondary hover:bg-surface-300"
+        >
+          <Link to="/client/partners">Browse partners</Link>
         </Button>
 
         <div className="flex flex-col gap-3">
