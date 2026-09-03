@@ -28,6 +28,7 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-200 p-4">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
+        <h1 className="sr-only">Log in to Ticket Tout</h1>
         <Wordmark />
         <Card className="w-full rounded-[12px] border border-surface-400 shadow-card-highlight ring-0">
           <CardHeader>
@@ -83,9 +84,14 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
-        <Link to="/terms" className="text-caption font-sans text-ink-600">
-          Terms of Use
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/terms" className="text-caption font-sans text-ink-600">
+            Terms of Use
+          </Link>
+          <Link to="/accessibility" className="text-caption font-sans text-ink-600">
+            Accessibility
+          </Link>
+        </div>
       </div>
     </div>
   )

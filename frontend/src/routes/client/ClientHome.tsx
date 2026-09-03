@@ -71,6 +71,7 @@ export function ClientHome() {
   return (
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
+        <h1 className="sr-only">Ticket Tout — client dashboard</h1>
         <div className="flex items-center justify-between">
           <Wordmark />
           <button
@@ -180,7 +181,9 @@ export function ClientHome() {
           )}
           {qrCode.isSuccess && !isExpired && (
             <div className="flex flex-col items-center gap-3">
-              <QRCodeSVG value={qrCode.data.qr_payload} size={200} />
+              <div role="img" aria-label="Payment QR code">
+                <QRCodeSVG value={qrCode.data.qr_payload} size={200} />
+              </div>
               <p className="text-status-caps uppercase font-display text-pending-600">
                 Expires in {formatCountdown(secondsLeft)}
               </p>
