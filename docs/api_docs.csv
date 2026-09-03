@@ -15,7 +15,7 @@ Partner,GET /partners/me/dashboard,query: period,"{""total_received"",""transact
 Shared,GET /partners,"query: search, category, page, limit","{""data"":[...],""meta"":{...}}","Browsable/searchable catalog of active partners",200,false,true
 Shared,GET /partners/{id},—,"{""partner"": {...}}",Returns a single partner's public detail,200,false,true
 Admin,GET /admin/partners,"query: status, page, limit","{""data"":[...],""meta"":{...}}","Lists partner registrations, filterable by status",200,false,false
-Admin,POST /admin/partners/{id}/approve,—,"{""partner"": {...}}",Approves a pending partner (status → active),200,false,false
+Admin,POST /admin/partners/{id}/approve,—,"{""partner"": {...}}",Approves a pending partner (status → active),200,false,true
 Admin,POST /admin/partners/{id}/reject,"{""reason""}","{""partner"": {...}}",Rejects a pending partner (status → rejected),200,false,false
 Admin,PATCH /admin/partners/{id}/status,"{""status""}","{""partner"": {...}}",Changes a partner's lifecycle status,200,false,false
 Admin,PATCH /admin/partners/{id}/minister-pick,"{""minister_pick""}","{""partner"": {...}}","Sets or clears the partner's ""Minister's Pick"" highlight, shown on the employee homepage",200,false,false

@@ -10,6 +10,7 @@ package users
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -70,4 +71,31 @@ func HandleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 		"admin": admin,
 	})
 
+}
+
+func HandleApprovePartner(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+
+	if err != nil {
+		http.Error(w, "Invalid partner ID", http.StatusBadRequest)
+		return
+	}
+
+	_, partner, err := getPartnerByID(uint(id))
+	if err != nil {
+		http.Error(w, "Partner not found", http.StatusNotFound)
+		return
+	}
+
+	partner.Status = database.StatusApproved
+	if err := database.DB.Save(partner).Error; err != nil {
+		http.Error(w, "Failed to approve partner", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"partner": partner,
+	})
 }
