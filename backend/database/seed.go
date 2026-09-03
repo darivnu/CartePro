@@ -47,7 +47,7 @@ func SeedTestClient() {
 	log.Printf("seeded test client -> email: testclient@cartepro.dev password: password123")
 }
 
-func SeedTestPartner() {
+func SeedTestPartners() {
 	var count int64
 	DB.Model(&Partner{}).Count(&count)
 	if count > 0 {
@@ -60,28 +60,72 @@ func SeedTestPartner() {
 		log.Fatalf("failed to hash seed password: %v", err)
 	}
 
-	user := User{
-		Email:        "testpartner@cartepro.dev",
-		PasswordHash: string(hash),
-		Role:         RolePartner,
-	}
-	if err := DB.Create(&user).Error; err != nil {
-		log.Fatalf("failed to seed test user: %v", err)
+	partners := []struct {
+		Email        string
+		BusinessName string
+		Siret        string
+		Category     string
+		Address      string
+		Region       string
+	}{
+		{
+			Email:        "testpartner@cartepro.dev",
+			BusinessName: "Test Partner",
+			Siret:        "12345678901234",
+			Category:     "Test Category",
+			Address:      "123 Test St, Test City",
+			Region:       "Test Region",
+		},
+		{
+			Email:        "contact@lecroissantdore.fr",
+			BusinessName: "Le Croissant Doré",
+			Siret:        "23456789012345",
+			Category:     "Bakery",
+			Address:      "12 Rue de la Paix, Lyon",
+			Region:       "Auvergne-Rhône-Alpes",
+		},
+		{
+			Email:        "hello@pixelburgerco.com",
+			BusinessName: "Pixel Burger Co.",
+			Siret:        "34567890123456",
+			Category:     "Restaurant",
+			Address:      "45 Avenue des Frites, Bordeaux",
+			Region:       "Nouvelle-Aquitaine",
+		},
+		{
+			Email:        "info@fitzonegymclub.fr",
+			BusinessName: "FitZone Gym Club",
+			Siret:        "45678901234567",
+			Category:     "Sports & Fitness",
+			Address:      "78 Boulevard du Muscle, Marseille",
+			Region:       "Provence-Alpes-Côte d'Azur",
+		},
 	}
 
-	partner := Partner{
-		UserID:       user.ID,
-		BusinessName: "Test Partner",
-		Siret:        "12345678901234",
-		Category:     "Test Category",
-		Address:      "123 Test St, Test City",
-		Region:       "Test Region",
-		Balance:      100000,
-		Status:       StatusApproved,
-	}
-	if err := DB.Create(&partner).Error; err != nil {
-		log.Fatalf("failed to seed test partner: %v", err)
-	}
+	for _, p := range partners {
+		user := User{
+			Email:        p.Email,
+			PasswordHash: string(hash),
+			Role:         RolePartner,
+		}
+		if err := DB.Create(&user).Error; err != nil {
+			log.Fatalf("failed to seed test user: %v", err)
+		}
 
-	log.Printf("seeded test partner -> email: testpartner@cartepro.dev password: password123")
+		partner := Partner{
+			UserID:       user.ID,
+			BusinessName: p.BusinessName,
+			Siret:        p.Siret,
+			Category:     p.Category,
+			Address:      p.Address,
+			Region:       p.Region,
+			Balance:      100000,
+			Status:       StatusApproved,
+		}
+		if err := DB.Create(&partner).Error; err != nil {
+			log.Fatalf("failed to seed test partner: %v", err)
+		}
+
+		log.Printf("seeded test partner -> email: %s password: password123", p.Email)
+	}
 }

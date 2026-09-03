@@ -22,7 +22,7 @@ func main() {
 
 	mux := routing.NewRouter()
 	database.SeedTestClient()
-	database.SeedTestPartner()
+	database.SeedTestPartners()
 
 	addr := ":4242"
 	log.Printf("Starting server on %s", addr)

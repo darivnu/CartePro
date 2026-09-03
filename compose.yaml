@@ -14,6 +14,7 @@ services:
       - "4242:4242" #for debuf and dev, delete later
     env_file:
       - .env
+    restart: on-failure
     networks:
       - frontend_net
       - backend_net
