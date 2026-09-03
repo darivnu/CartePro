@@ -7,6 +7,7 @@ export function AdminHome() {
   return (
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
+        <h1 className="sr-only">Ticket Tout — admin dashboard</h1>
         <div className="flex items-center justify-between">
           <Wordmark />
           <button
