@@ -31,7 +31,7 @@ export function PartnerDetail() {
         {partner.isSuccess && (
           <div className="flex flex-col gap-6">
             <h1 className="text-h1 font-display text-graphite-900">
-              {partner.data.partner.business_name}
+              {partner.data.partner.BusinessName}
             </h1>
 
             <div className="flex flex-col gap-4">
@@ -40,7 +40,7 @@ export function PartnerDetail() {
                   Category
                 </p>
                 <p className="text-body font-sans text-ink-900">
-                  {partner.data.partner.category}
+                  {partner.data.partner.Category}
                 </p>
               </div>
 
@@ -49,7 +49,7 @@ export function PartnerDetail() {
                   Region
                 </p>
                 <p className="text-body font-sans text-ink-900">
-                  {partner.data.partner.region}
+                  {partner.data.partner.Region}
                 </p>
               </div>
 
@@ -58,7 +58,7 @@ export function PartnerDetail() {
                   Address
                 </p>
                 <p className="text-body font-sans text-ink-900">
-                  {partner.data.partner.address}
+                  {partner.data.partner.Address}
                 </p>
               </div>
             </div>

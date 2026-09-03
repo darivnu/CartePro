@@ -1,16 +1,15 @@
 export interface Partner {
-  id: number
-  business_name: string
-  category: string
-  region: string
-  address: string
+  ID: number
+  BusinessName: string
+  Category: string
+  Region: string
+  Address: string
 }
 
 export interface PartnersMeta {
   page: number
   limit: number
   total: number
-  total_pages: number
 }
 
 export interface PartnersResponse {

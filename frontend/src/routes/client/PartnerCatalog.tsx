@@ -10,6 +10,9 @@ export function PartnerCatalog() {
   const [page, setPage] = useState(1)
 
   const partners = usePartners({ search, category, page })
+  const totalPages = partners.data
+    ? Math.ceil(partners.data.meta.total / partners.data.meta.limit)
+    : 0
 
   function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
     setSearch(event.target.value)
@@ -66,16 +69,16 @@ export function PartnerCatalog() {
           <div className="flex flex-col gap-[2px]">
             {partners.data.data.map((partner) => (
               <Link
-                key={partner.id}
-                to={`/client/partners/${partner.id}`}
+                key={partner.ID}
+                to={`/client/partners/${partner.ID}`}
                 className="flex items-center justify-between rounded-row bg-surface-050 px-3 py-3 shadow-row-raised"
               >
                 <div className="flex flex-col gap-1">
                   <p className="text-body-strong font-sans text-ink-900">
-                    {partner.business_name}
+                    {partner.BusinessName}
                   </p>
                   <p className="text-caption font-sans text-ink-600">
-                    {partner.category} · {partner.region}
+                    {partner.Category} · {partner.Region}
                   </p>
                 </div>
               </Link>
@@ -83,7 +86,7 @@ export function PartnerCatalog() {
           </div>
         )}
 
-        {partners.isSuccess && partners.data.meta.total_pages > 1 && (
+        {partners.isSuccess && totalPages > 1 && (
           <div className="flex items-center justify-between">
             <Button
               size="sm"
@@ -94,11 +97,11 @@ export function PartnerCatalog() {
               Prev
             </Button>
             <p className="text-caption font-sans text-ink-600">
-              Page {page} of {partners.data.meta.total_pages}
+              Page {page} of {totalPages}
             </p>
             <Button
               size="sm"
-              disabled={page >= partners.data.meta.total_pages}
+              disabled={page >= totalPages}
               onClick={() => setPage((current) => current + 1)}
               className="rounded-panel bg-surface-300 text-button uppercase font-display text-graphite-900 shadow-key-secondary hover:bg-surface-300"
             >
