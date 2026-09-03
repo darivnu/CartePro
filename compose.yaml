@@ -1,0 +1,47 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:5173"
+    networks:
+      - frontend_net
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "4242:4242" #for debuf and dev, delete later
+    env_file:
+      - .env
+    networks:
+      - frontend_net
+      - backend_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  frontend_net:
+  backend_net:
+
+volumes:
+  postgres_data:

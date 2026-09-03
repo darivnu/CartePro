@@ -131,7 +131,7 @@ type Transaction struct {
 
 func InitDatabase() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("failed to load .env file: %v", err)
+		fmt.Fprintf(os.Stderr, "failed to load .env file: %v\n", err)
 	}
 
 	dsn := fmt.Sprintf(
