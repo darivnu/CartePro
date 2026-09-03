@@ -1,29 +1,31 @@
 # CartePro build artifact
 
-This bundle is self-contained: it does not need the git repo, Node, or Go
-installed to build anything — everything here is already compiled. You still
-need a reachable Postgres instance and a static file server for the frontend.
+This bundle is self-contained: it needs only Docker (with the `docker
+compose` plugin) installed. It does not need the git repo, Node, Go, or a
+pre-existing Postgres instance — the artifact starts its own database
+container.
 
 ## Contents
 
-- `backend/cartepro` — statically linked Linux (amd64) backend binary.
-- `frontend/dist/` — built frontend static assets.
-- `env.example` — reference environment variables for the backend.
+- `images.tar` — pre-built `cartepro-backend`, `cartepro-frontend`, and
+  `postgres` Docker images.
+- `docker-compose.yml` — wires the three images together (frontend, backend,
+  database).
+- `env.example` — reference environment variables, copied to `.env` on first
+  run.
+- `RUN_ME.sh` — loads the images and starts the stack.
 
 ## Running
 
-1. Copy `env.example` to `.env` and point `DB_HOST`/`DB_PORT`/`DB_USER`/
-   `DB_PASSWORD`/`DB_NAME` at a running Postgres instance.
+From an empty folder containing just this artifact's contents:
 
-2. Start the backend (reads its config from `.env` in the working directory,
-   or from exported environment variables):
+```sh
+./RUN_ME.sh
+```
 
-   ```sh
-   ./backend/cartepro
-   ```
+Then:
 
-3. Serve the frontend static files with any static file server, e.g.:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4242
 
-   ```sh
-   npx serve -s frontend/dist -l 3000
-   ```
+Stop everything with `docker compose down` (run from the same folder).
