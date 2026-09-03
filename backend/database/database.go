@@ -124,8 +124,11 @@ type Transaction struct {
 	QrTokenID      *uint
 	QrToken        *QrToken `gorm:"foreignKey:QrTokenID"`
 	IdempotencyKey *string  `gorm:"uniqueIndex"` //nil for topups or admin stuff
+	AdminID        *uint
+	Admin          *Admin `gorm:"foreignKey:AdminID"`
 	Amount         int64
 	CreatedAt      time.Time
+	Comment        *string         // pointer to string to allow null value
 	Type           TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
 }
 
