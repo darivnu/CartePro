@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLogout } from '../../auth/useAuth'
 import { Wordmark } from '@/components/Wordmark'
+import { SimulationNotice } from '@/components/SimulationNotice'
 import { useBalance, useTransactions, useGenerateQrCode } from '../../client/useClientData'
 import { formatCents } from '../../lib/money'
 import { Button } from '@/components/ui/button'
@@ -97,6 +98,7 @@ export function ClientHome() {
               {formatCents(balance.data.balance)}
             </p>
           )}
+          <SimulationNotice tone="dark" />
         </div>
 
         <Button
@@ -115,6 +117,7 @@ export function ClientHome() {
 
         <div className="flex flex-col gap-3">
           <h2 className="text-h2 font-display text-brand-blue">Transactions</h2>
+          <SimulationNotice />
 
           {transactions.isLoading && (
             <p className="text-body font-sans text-ink-600">Loading...</p>
@@ -164,6 +167,8 @@ export function ClientHome() {
               only be used once.
             </DialogDescription>
           </DialogHeader>
+
+          <SimulationNotice />
 
           {qrCode.isPending && (
             <p className="text-body font-sans text-ink-600">Generating...</p>
