@@ -154,7 +154,7 @@ export function ClientHome() {
                 >
                   <div className="flex flex-col gap-1">
                     <p className="text-body-strong font-sans text-ink-900">
-                      {tx.partner ? tx.partner.business_name : 'Top-up'}
+                      {tx.partner ? tx.partner.business_name : tx.type === 'topup' ? 'Top-up' : 'Purchase'}
                     </p>
                     <p className="text-caption font-sans text-ink-600">
                       {dateFormatter.format(new Date(tx.created_at))}
