@@ -26,6 +26,18 @@ func cookieSecure() bool {
 	return os.Getenv("COOKIE_SECURE") == "true"
 }
 
+//sessionSameSite mirrors cookieSecure: locally, frontend and backend share the
+//"localhost" site (just different ports) so Lax works. On Vercel, frontend and
+//backend live on different domains, and browsers only send SameSite=Lax cookies
+//on cross-site fetch for top-level navigations, not XHR/fetch - so cross-site
+//credentialed requests need None, which in turn requires Secure.
+func sessionSameSite() http.SameSite {
+	if cookieSecure() {
+		return http.SameSiteNoneMode
+	}
+	return http.SameSiteLaxMode
+}
+
 func generateSessionToken() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -58,7 +70,7 @@ func setSessionCookie(w http.ResponseWriter, session *database.Session) {
 		Path:     "/",
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, //samesitelax mode is a security feature that prevents cross-site request forgery
+		SameSite: sessionSameSite(),
 		Secure:   cookieSecure(),
 	})
 }
@@ -71,7 +83,7 @@ func clearSessionCookie(w http.ResponseWriter) {
 		Path:     "/",
 		Secure:   cookieSecure(),
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: sessionSameSite(),
 	})
 }
 
