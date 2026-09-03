@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t cartepro-backend:${{ github.sha }} ./backend
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            --build-arg VITE_API_BASE_URL=http://localhost:4242 \
+            -t cartepro-frontend:${{ github.sha }} ./frontend
+
+      - name: Pull database image
+        run: docker pull postgres:18-alpine
+
+      - name: Assemble artifact
+        run: |
+          mkdir -p artifact
+          docker save \
+            cartepro-backend:${{ github.sha }} \
+            cartepro-frontend:${{ github.sha }} \
+            postgres:18-alpine \
+            -o artifact/images.tar
+          sed "s/__TAG__/${{ github.sha }}/g" .github/docker-compose.artifact.yml > artifact/docker-compose.yml
+          cp .env.example artifact/env.example
+          cp .github/ARTIFACT_README.md artifact/README.md
+          cp .github/run_artefact.sh artifact/RUN_ME.sh
+          chmod +x artifact/RUN_ME.sh
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartepro-build-${{ github.sha }}
+          path: artifact/
+          if-no-files-found: error
