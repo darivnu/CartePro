@@ -9,8 +9,8 @@ export function PartnerDetail() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-graphite-900">
-            CartePro
+          <p className="text-wordmark uppercase font-display text-brand-blue">
+            Ticket Tout
           </p>
           <Link
             to="/client/partners"
@@ -30,7 +30,7 @@ export function PartnerDetail() {
         )}
         {partner.isSuccess && (
           <div className="flex flex-col gap-6">
-            <h1 className="text-h1 font-display text-graphite-900">
+            <h1 className="text-h1 font-display text-ink-900">
               {partner.data.partner.BusinessName}
             </h1>
 

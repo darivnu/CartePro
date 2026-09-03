@@ -27,10 +27,10 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-200 p-4">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
-        <p className="text-wordmark uppercase font-display text-graphite-900">CartePro</p>
+        <p className="text-wordmark uppercase font-display text-brand-blue">Ticket Tout</p>
         <Card className="w-full rounded-[12px] border border-surface-400 shadow-card-highlight ring-0">
           <CardHeader>
-            <CardTitle className="text-[1.5rem] leading-[1.15] tracking-[-0.02em] font-bold text-graphite-900">
+            <CardTitle className="text-[1.5rem] leading-[1.15] tracking-[-0.02em] font-bold text-brand-blue">
               Log in
             </CardTitle>
             <CardDescription className="text-[0.6875rem] leading-[1.5] text-ink-600">

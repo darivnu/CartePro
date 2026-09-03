@@ -4,7 +4,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+    font-family: "Marianne";
+    src: url("/fonts/Marianne-Medium.woff2") format("woff2");
+    font-weight: 500 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Marianne";
+    src: url("/fonts/Marianne-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 @theme {
+    --color-brand-blue: #1B3A6B;
+
     --color-graphite-900: #1B1E22;
     --color-graphite-800: #262A2F;
     --color-graphite-700: #31363C;
@@ -39,8 +57,8 @@
 
     --background-image-card-gradient: linear-gradient(160deg, var(--color-graphite-700) 0%, var(--color-graphite-900) 55%, var(--color-graphite-800) 100%);
 
-    --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
-    --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Marianne", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Spectral", ui-serif, Georgia, serif;
 
     --radius-card: 12px;
     --radius-panel: 8px;

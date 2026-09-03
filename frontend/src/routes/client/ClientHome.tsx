@@ -70,8 +70,8 @@ export function ClientHome() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-graphite-900">
-            CartePro
+          <p className="text-wordmark uppercase font-display text-brand-blue">
+            Ticket Tout
           </p>
           <button
             onClick={() => logout.mutate()}
@@ -115,7 +115,7 @@ export function ClientHome() {
         </Button>
 
         <div className="flex flex-col gap-3">
-          <h2 className="text-h2 font-display text-graphite-900">Transactions</h2>
+          <h2 className="text-h2 font-display text-brand-blue">Transactions</h2>
 
           {transactions.isLoading && (
             <p className="text-body font-sans text-ink-600">Loading...</p>
@@ -157,7 +157,7 @@ export function ClientHome() {
       <Dialog open={qrOpen} onOpenChange={setQrOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-h2 font-display text-graphite-900">
+            <DialogTitle className="text-h2 font-display text-brand-blue">
               Payment QR code
             </DialogTitle>
             <DialogDescription className="text-body font-sans text-ink-600">
