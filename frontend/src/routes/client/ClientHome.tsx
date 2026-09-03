@@ -55,15 +55,29 @@ function formatCountdown(totalSeconds: number) {
 
 export function ClientHome() {
   const logout = useLogout()
-  const balance = useBalance()
   const transactions = useTransactions()
   const qrCode = useGenerateQrCode()
   const [qrOpen, setQrOpen] = useState(false)
+  const [balanceAtOpen, setBalanceAtOpen] = useState<number | null>(null)
 
   const secondsLeft = useCountdown(qrCode.data?.expires_at)
   const isExpired = qrCode.isSuccess && secondsLeft <= 0
+  const balance = useBalance({
+    refetchInterval: qrOpen && qrCode.isSuccess && !isExpired ? 2000 : false,
+  })
+
+  useEffect(() => {
+    if (!qrOpen || balanceAtOpen === null || !balance.data) {
+      return
+    }
+    if (balance.data.balance !== balanceAtOpen) {
+      setQrOpen(false)
+      transactions.refetch()
+    }
+  }, [balance.data, qrOpen, balanceAtOpen, transactions])
 
   function handleGenerate() {
+    setBalanceAtOpen(balance.data?.balance ?? null)
     setQrOpen(true)
     qrCode.mutate()
   }
