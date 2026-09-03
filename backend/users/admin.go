@@ -104,7 +104,6 @@ func HandleApprovePartner(w http.ResponseWriter, r *http.Request) {
 type AdminTopupRequest struct {
 	ClientID       uint   `json:"client_id"`
 	Amount         int64  `json:"amount"`
-	IdempotencyKey string `json:"idempotency_key"`
 	Comment        string `json:"comment"`
 }
 
@@ -142,7 +141,6 @@ func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 		Type:           database.TransactionTypeTopup,
 		Comment:        &req.Comment,
 		AdminID:        &admin.ID,
-		IdempotencyKey: &req.IdempotencyKey,
 	}
 	database.DB.Create(&transaction)
 
