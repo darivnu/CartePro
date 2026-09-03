@@ -102,9 +102,9 @@ func HandleApprovePartner(w http.ResponseWriter, r *http.Request) {
 }
 
 type AdminTopupRequest struct {
-	ClientID       uint   `json:"client_id"`
-	Amount         int64  `json:"amount"`
-	Comment        string `json:"comment"`
+	ClientID uint   `json:"client_id"`
+	Amount   int64  `json:"amount"`
+	Comment  string `json:"comment"`
 }
 
 func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
@@ -134,17 +134,66 @@ func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 	database.DB.Save(&client)
 
 	transaction := database.Transaction{
-		ClientID:       client.ID,
-		PartnerID:      nil,
-		QrTokenID:      nil,
-		Amount:         req.Amount,
-		Type:           database.TransactionTypeTopup,
-		Comment:        &req.Comment,
-		AdminID:        &admin.ID,
+		ClientID:  client.ID,
+		PartnerID: nil,
+		QrTokenID: nil,
+		Amount:    req.Amount,
+		Type:      database.TransactionTypeTopup,
+		Comment:   &req.Comment,
+		AdminID:   &admin.ID,
 	}
 	database.DB.Create(&transaction)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+}
+
+func HandleGetAdminPartners(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	query := r.URL.Query()
+	status := query.Get("status")
+	if status != "" && status != string(database.StatusPending) && status != string(database.StatusApproved) && status != string(database.StatusRejected) {
+		http.Error(w, "Invalid status filter", http.StatusBadRequest)
+		return
+	}
+	page, err := strconv.Atoi(query.Get("page"))
+	if err != nil || page < 1 {
+		page = 1 //the page is which chunk we want (defined by limit), so if we want the first chunk, we set page to 1)
+	}
+
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil || limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	var partners []database.Partner
+	dbQuery := database.DB.Model(&database.Partner{})
+	if status != "" {
+		dbQuery = dbQuery.Where("status = ?", status)
+	}
+	dbQuery.Offset((page - 1) * limit).Limit(limit).Find(&partners)
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"data": partners,
+		"meta": map[string]interface{}{
+			"page":  page,
+			"limit": limit,
+		},
+	})
+
 }

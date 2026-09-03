@@ -40,6 +40,7 @@ func NewRouter() *http.ServeMux {
 	mux.HandleFunc("POST /admin/register", users.HandleAdminRegistration)
 	mux.HandleFunc("POST /admin/partners/{id}/approve", users.HandleApprovePartner)
 	mux.HandleFunc("POST /admin/topups", users.HandleAdminTopups)
+	mux.HandleFunc("GET /admin/partners", users.HandleGetAdminPartners)
 
 	return mux
 }
