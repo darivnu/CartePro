@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLogout } from '../../auth/useAuth'
+import { Wordmark } from '@/components/Wordmark'
 import { useBalance, useTransactions, useGenerateQrCode } from '../../client/useClientData'
 import { formatCents } from '../../lib/money'
 import { Button } from '@/components/ui/button'
@@ -70,9 +71,7 @@ export function ClientHome() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-brand-blue">
-            Ticket Tout
-          </p>
+          <Wordmark />
           <button
             onClick={() => logout.mutate()}
             className="text-label-caps uppercase font-display text-ink-600"
