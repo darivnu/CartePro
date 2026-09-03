@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLogout } from '../../auth/useAuth'
+import { Wordmark } from '@/components/Wordmark'
 import { useBalance, useTransactions, useGenerateQrCode } from '../../client/useClientData'
 import { formatCents } from '../../lib/money'
 import { Button } from '@/components/ui/button'
@@ -70,9 +71,7 @@ export function ClientHome() {
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <div className="flex items-center justify-between">
-          <p className="text-wordmark uppercase font-display text-graphite-900">
-            CartePro
-          </p>
+          <Wordmark />
           <button
             onClick={() => logout.mutate()}
             className="text-label-caps uppercase font-display text-ink-600"
@@ -115,7 +114,7 @@ export function ClientHome() {
         </Button>
 
         <div className="flex flex-col gap-3">
-          <h2 className="text-h2 font-display text-graphite-900">Transactions</h2>
+          <h2 className="text-h2 font-display text-brand-blue">Transactions</h2>
 
           {transactions.isLoading && (
             <p className="text-body font-sans text-ink-600">Loading...</p>
@@ -157,7 +156,7 @@ export function ClientHome() {
       <Dialog open={qrOpen} onOpenChange={setQrOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-h2 font-display text-graphite-900">
+            <DialogTitle className="text-h2 font-display text-brand-blue">
               Payment QR code
             </DialogTitle>
             <DialogDescription className="text-body font-sans text-ink-600">
