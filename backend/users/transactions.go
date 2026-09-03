@@ -10,6 +10,7 @@ package users
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"cartepro/database"
@@ -107,4 +108,69 @@ func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+}
+
+func HandleGetClientOwnTransactions(w http.ResponseWriter, r *http.Request) {
+	_, client, err := server.GetClientFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	query := r.URL.Query()
+
+	page, err := strconv.Atoi(query.Get("page"))
+	if err != nil || page < 1 {
+		page = 1 //the page is which chunk we want (defined by limit), so if we want the first chunk, we set page to 1)
+	}
+
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil || limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	from := query.Get("from")
+	to := query.Get("to")
+
+	db := database.DB.Model(&database.Transaction{}).Where("client_id = ?", client.ID)
+	if from != "" {
+		fromTime, err := time.Parse(time.RFC3339, from)
+		if err != nil {
+			http.Error(w, "Invalid 'from' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at >= ?", fromTime)
+	}
+	if to != "" {
+		toTime, err := time.Parse(time.RFC3339, to)
+		if err != nil {
+			http.Error(w, "Invalid 'to' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at <= ?", toTime)
+	}
+
+	var total int64
+	db.Count(&total)
+
+	var transactions []database.Transaction
+	if err := db.Offset((page - 1) * limit).Limit(limit).Find(&transactions).Error; err != nil {
+		http.Error(w, "Failed to fetch transactions", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"data": transactions,
+		"meta": map[string]interface{}{
+			"page":        page,
+			"limit":       limit,
+			"total":       total,
+			"total_pages": (total + int64(limit) - 1) / int64(limit),
+			"from":        from,
+			"to":          to,
+		},
+	})
 }
