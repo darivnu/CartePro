@@ -1,0 +1,42 @@
+Hi team,
+
+Benjamin. I will be straight with you, because you are going to spot the contradiction with yesterday's email anyway.
+
+I lost the arbitration. The Minister wants the card to carry the name "Ticket Tout" on screen and on the physical medium. I defended CartePro for twenty minutes last night. His answer, and I quote: "CartePro sounds like a print shop, Ticket Tout sounds like something you want". That is where we are.
+
+Except he is right about one thing, and this is where I need you: our card is ugly. An employee should want to pull it out of their pocket. Right now we have an administrative blue rectangle. Nobody wants that.
+1. The Ticket Tout brand book
+
+A PDF of at least 10 pages, in the Ministry's colours but genuinely desirable, containing:
+
+    The Ticket Tout logotype: primary version, monochrome version, favicon version. With clear space and minimum sizes.
+    The palette, derived from institutional blue #1B3A6B, with at least two accent colours that wake the whole thing up. HEX codes mandatory. And a contrast table: for every text/background pair you actually use, the measured ratio, with the tool you used. Florine is going to land on us with her RGAA AA before the fortnight is out, so we may as well settle it now, and any pair below 4.5:1 must be flagged as such in the book, not glossed over.
+    The physical card artwork: front, back, and in context (hand, wallet, payment terminal). A mockup, not a sketch.
+    The card in the interface: how it renders in the employee space, at rest and at the moment of payment. Those two pages are screenshots of your running application, not mockups. It is the only way I have of knowing whether the book is applicable or decorative.
+    The variations: a web banner, a social media asset, an A3 poster template.
+    The don'ts, meaning what must never be done with the brand. That page counts as much as the others, and I want at least three don'ts taken from your own interface: the mistakes you would genuinely be tempted to make, not the three classics copied from every brand guide in the world.
+
+2. And the interface lines up with it
+
+A brand book the product does not follow is a pretty PDF and nothing else. So, at the same time:
+
+    The palette exists in the code, as named variables in a single file, and the screens use them. If I change one value there, the whole interface moves. Otherwise it is not a palette, it is an intention.
+    The logotype is in place across all three spaces (employee, partner, admin), not just the home page, and on the favicon.
+    The name switches everywhere it appears, and here I am reusing the list I gave you yesterday for CartePro, because it applies exactly the same in the other direction: tab titles, login screen, footer, emails sent by the application, error pages, demo datasets, exports, README. Run the grep again, the other way round.
+
+3. The video
+
+Yes, this occurred to me afterwards. The video you are preparing for Friday says "CartePro" on screen and probably out loud too. I cannot send that to a newsroom on Thursday afternoon. Reshoot the takes where the name appears, or redo the whole journey once the interface has switched. It is my fault, I know, and there is nothing I can do about it.
+4. Deadline and trade-offs
+
+Deadline: tomorrow 12:00. I know it is tight. But the Minister is presenting on Thursday and I cannot show him a blue rectangle.
+
+One clarification that matters: the ministerial guidelines still apply to the rest of the interface. Ticket Tout is a product brand living inside the guidelines, not in their place. If the two look irreconcilable on a specific point, call me and we will settle it together.
+
+And I would rather say it plainly than let you drown: I am asking for more than fits in one day. If you have to choose, put the interface ahead of the PDF, sacrifice the variations before the logotype, and send me in writing, with the deliverable, what you left out and why. A missing page you own, I can defend in a meeting. A rushed page, I discover in front of the Minister and at that point I can no longer help you.
+
+Counting on you 🙏
+
+Benjamin Sellami - Communications Adviser
+Minister's Office - Ministry of Job and Happiness
+JEB Logo

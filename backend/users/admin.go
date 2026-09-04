@@ -134,13 +134,12 @@ func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 	database.DB.Save(&client)
 
 	transaction := database.Transaction{
-		ClientID:  client.ID,
-		PartnerID: nil,
+		ReceiverUserID:  client.UserID,
+		SenderUserID:    admin.UserID,
 		QrTokenID: nil,
 		Amount:    req.Amount,
 		Type:      database.TransactionTypeTopup,
 		Comment:   &req.Comment,
-		AdminID:   &admin.ID,
 	}
 	database.DB.Create(&transaction)
 

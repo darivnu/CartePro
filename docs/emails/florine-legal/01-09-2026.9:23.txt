@@ -1,0 +1,48 @@
+Hello,
+
+Florine Pontaillac, Legal Adviser to the Minister's Office. The CartePro programme handles flows comparable to payment operations. I would rather send you the applicable framework now than at the point where it has to be retrofitted.
+
+    Qualification of the service. The demonstrator does not constitute a payment service within the meaning of PSD2, on the express condition that no real value circulates. It would therefore be appropriate to display a simulation notice, visible and unconcealed, everywhere a monetary value appears. An asterisk in the footer would not, in my view, be sufficient. By "everywhere" I mean the places that are invariably forgotten: the balance screen, the history, the QR code generation screen, the partner-side validation screen, the partner's financial dashboard, the national dashboard, any error message quoting an amount, the page titles, and every document or export the application produces. You will attach one screenshot per location concerned, taken from the running application, not from a mockup. If there is a place where the notice cannot technically appear, say so and explain why: that is an answer I can defend, an omission is not.
+    Processing record. An employee's transaction history makes it possible to infer their consumption habits, their working hours, sometimes where they live. This requires a record sheet under Article 30 GDPR, setting out the purposes, the recipients and the retention period, which I would suggest limiting to 13 months. I could not be satisfied with a generic sheet: for each declared purpose you will state the tables and columns in your database that actually hold the data. A sheet that does not match your data model is a false sheet, and I am the one who signs it. Two points call for a judgement from you rather than a formula: among the data you collect on an employee, which are genuinely necessary to the service, and what do you remove if the answer is "no serious reason"? And by what mechanism would the 13 months actually be applied: purge, anonymisation, archiving? One sentence for each is enough, but I want yours.
+    Partner listing. Any approval of a partner by the administration should rest on verifiable supporting documents: company registration number, corporate purpose. A discretionary approval by an officer, with no documented criterion and no record of the decision, would expose us to a challenge I would not be able to defend. This carries a consequence for your model: the registration number and the corporate purpose should be captured at sign-up, checked at least for format, and retained; and every decision, approval as well as rejection, should leave a timestamped record carrying the officer's identifier and a written reason. A rejection whose reason is not recorded is not an enforceable rejection. I would therefore ask you to demonstrate on your demonstrator a reasoned rejection and the record it leaves, along with what the rejected partner sees. It is the case nobody handles, and it is the only one that ends up before an administrative court.
+    Accessibility and terms of use. RGAA level AA applies, and the demonstrator must come with an accessibility statement. Furthermore, no terms of use may be published without the prior opinion of my department: send me your draft before publication, even if incomplete. One warning, to spare you a round trip: a draft copied from a template will be sent back. I need to read your own rules in it, the ones your code actually applies, and these three in particular: what happens when a balance is insufficient, what becomes of an unspent balance at the end of a period, and who may cancel a validated transaction and by what procedure. If your application and your draft terms diverge on any of those three points, then one of the two is wrong, and I need to know which one before Friday.
+
+I would set the deadline for these three documents (record sheet, accessibility statement, draft terms of use) at Friday 12:00, with the simulation notice screenshots as an annex. Two pages each is enough for me: I am trying to find out what you have understood of the framework, not to receive a dissertation. It is the annexes that have to be accurate, not the prose.
+
+I am aware these are not the most exciting parts of your assignment. They are unfortunately the first things put to us when a programme is contested.
+
+Kind regards,
+
+Florine Pontaillac - Legal Adviser
+Minister's Office - Ministry of Job and Happiness
+JEB Logo
+
+Reply from us:
+
+
+Dear Ms Pontaillac,
+
+Thank you for your detailed guidance and for setting out the expected legal and compliance framework so clearly.
+
+We have taken note of all the points raised and will ensure that the demonstrator and supporting documentation are aligned accordingly.
+
+In particular, we will ensure that the simulation notice is clearly displayed wherever a monetary value appears in the application, including user, partner and administrative interfaces, as well as generated documents, exports and relevant error messages. The annex will contain screenshots taken directly from the running application for each location concerned, together with an explanation where any technical limitation exists.
+
+The Article 30 GDPR record sheet will reflect the actual data model of the application rather than a generic processing description. For each processing purpose, we will identify the relevant database tables and columns, the recipients and the applicable retention period. We will also document which employee data are strictly necessary for the service, remove data for which there is no sufficiently justified operational purpose, and specify the technical mechanism used to enforce the proposed 13-month retention period.
+
+Regarding partner registration and approval, the demonstrator will include the collection and validation of the company registration number and corporate purpose. Approval and rejection decisions will be recorded with a timestamp, the responsible officer’s identifier and a written justification. We will also include a complete rejection scenario showing both the administrative record created by the decision and the information presented to the rejected partner.
+
+We will prepare a dedicated accessibility statement addressing the applicable RGAA AA requirements. The draft terms of use will be submitted to your department before any publication and will reflect the actual behavior implemented in the application, particularly regarding insufficient balances, treatment of unspent balances at the end of a period, and the conditions and procedure for cancelling a validated transaction.
+
+We will provide the following by Friday at 12:00:
+
+* the Article 30 processing record sheet;
+* the accessibility statement;
+* the draft terms of use;
+* an annex containing the simulation notice screenshots and the supporting demonstrator evidence requested.
+
+Thank you again for highlighting these requirements at this stage. This gives us the opportunity to incorporate them into the demonstrator directly rather than treating compliance as a later adjustment.
+
+Kind regards,
+
+Gerard Du Pre,

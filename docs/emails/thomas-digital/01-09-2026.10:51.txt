@@ -1,0 +1,69 @@
+Hello,
+
+Thomas Vignal, Digital Adviser to the Minister's Office. I wrote the technical part of your specification. The part that has visibly been revised since. I stand by every line of it.
+Architecture deliverables
+
+    OpenAPI 3.0 specification, with a Swagger UI reachable on the running instance, before any deployment. It must describe the API you actually serve: I compare the list of paths in your specification with the routes your application exposes, and a discrepancy in either direction is a discrepancy. An undocumented API is not an API, it is a rumour; a badly documented one is a trap.
+    Database schema (logical model, cardinalities, indexes) by Friday 17:00, generated from the running database and not drawn from memory.
+    A complete .env.example, no hard-coded secrets in the repository.
+    A /health endpoint returning application status and deployed version.
+
+Deployment
+
+The Ministry will not open an account with any cloud provider for this demonstrator. So I am not asking you to host anything at your own expense, still less to sign a contract. The sovereignty doctrine does apply to your technical choices, however, and there I will be strict:
+
+    No dependency on a paid third-party service, or on one requiring a proprietary account, in order to run the application. No managed object storage, no hosted database, no commercial mapping, authentication or mail-sending API. If your project does not start without an account with an American vendor, the Ministry cannot take it over.
+    The application must run entirely locally, on the machine of whoever clones the repository, using your installation instructions alone. That is my only acceptance criterion on this point.
+    A one-page deployment note. Where this service would be hosted in production, what resources it would need, what data would leave the infrastructure and to whom. That note is what I pass up to the Directorate. Not an invoice.
+
+And to cut short the question I am asked three times a day: yes, the "trusted cloud" doctrine excludes AWS, GCP and Azure. No, I did not write it.
+Transactional integrity, the critical point
+
+    A validated transaction is immutable. No UPDATE, no DELETE. If you need to correct one, you write a reversing entry. This is accounting, not CRUD.
+    An employee's balance can never go negative. A debit larger than the available balance is refused, cleanly, with a message that says why. I am spelling this out because it has already been argued with me in a meeting.
+    Collection operations must be idempotent: scanning a QR code twice must not debit twice. Plan for an idempotency key at API level. Replaying the same request must return the transaction already created, with the same identifier, not an error and not a second entry.
+    Single-use QR codes, five minutes of validity at most, signed server-side. A QR code that stays valid is a bearer payment instrument.
+    A GET /api/v1/employees/{id}/balance endpoint must be exposed for the HRIS integration to come. Frozen, versioned JSON contract: an example response in the specification, and a defined behaviour for an unknown identifier. "It returns null" is not a contract.
+
+What I want to see, not merely to read
+
+Those five rules are worth nothing if they rest on the goodwill of whoever writes the next controller. By Friday 17:00, alongside the schema:
+
+    One automated test per rule for the first three (immutability, never-negative balance, idempotence). The criterion is simple: if I remove the guard from your code, the test must go red. A test that stays green when the rule disappears tests nothing.
+    An execution trace of a double collection: two identical calls, both responses, and the contents of the table afterwards. Paste the raw output, I am not asking for formatting.
+    Ten lines on concurrency. Two partners collect from the same employee at the same instant, each for an amount the balance covers, but not both. What happens in your system, and thanks to what: isolation level, row lock, database constraint, queue? There are several good answers. None of them is "we had not thought about it", and that is exactly the hole an auditor opens first.
+
+Documented load tests will be requested before next week's technical review. A k6 or Locust scenario run locally will do; I am not after production figures. Plan ahead all the same.
+
+Regards,
+
+Thomas Vignal - Digital Adviser
+Minister's Office - Ministry of Job and Happiness
+JEB Logo
+
+Reply from us:
+Dear Mr Vignal,
+Thank you for your detailed technical guidance and for clarifying the expected architecture, deployment, transactional integrity, and testing requirements for the Ticket Tout demonstrator.
+We have reviewed your instructions against the latest annotated specification and have identified two points where the requirements appear to conflict. Before implementing the final behaviour, we would appreciate your confirmation on which requirement should take precedence.
+First, regarding QR code validity, the annotated specification states that the payment QR code should remain valid for at least 30 minutes, while your latest technical requirements specify that QR codes must be single-use and valid for no more than five minutes.
+Second, regarding HRIS interoperability, the annotated specification explicitly asks us to remove HRIS integration from the MVP scope and focus on the functionality required for the demonstrator. Your latest instructions, however, require a versioned GET /api/v1/employees/{id}/balance endpoint with a frozen JSON contract for future HRIS integration.
+Could you please confirm the expected implementation for these two points?
+For the remaining requirements, we have noted the requested OpenAPI documentation, database schema, .env.example, /health endpoint, local execution capability, deployment note, transaction immutability, prevention of negative balances, idempotency, automated tests, execution trace, and concurrency explanation.
+We also understand that administrative cancellation of a validated transaction should not modify or delete the original transaction, but should instead be implemented through a reversing entry. This appears compatible with the administrative cancellation requirement in the annotated specification.
+Thank you in advance for your clarification. We will use your response to ensure that the implementation and documentation remain fully consistent with the Ministry’s final requirements.
+Gerard Du Pre,
+
+Hi reply:
+Hello,
+
+QR code: five minutes, single use, and that does not move. A QR still valid after thirty minutes can be replayed, and at that point it is a bearer payment token. I know the annotated specification asks for more time. The conflict is real, and it is not the security requirement that gives way.
+
+HRIS: I know the annotated specification drops SIRH interoperability, and yes, I first justified this endpoint by it. Keep it regardless, not to integrate anything, but as one versioned GET balance with a frozen contract and a defined response for an unknown id. That is cheap now and costly to retrofit.
+
+ On administrative cancellation, your reading is correct: a reversing entry, never a modification or deletion.
+
+ Regards,
+
+
+Thomas Vignal - Conseiller numérique
+Cabinet du Ministre - Ministère du Job et Bonheur
