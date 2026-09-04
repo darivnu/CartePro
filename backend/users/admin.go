@@ -180,11 +180,14 @@ func HandleGetAdminPartners(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var partners []database.Partner
-	dbQuery := database.DB.Model(&database.Partner{})
+	dbQuery := database.DB.Model(&database.Partner{}).Order("id")
 	if status != "" {
 		dbQuery = dbQuery.Where("status = ?", status)
 	}
-	dbQuery.Offset((page - 1) * limit).Limit(limit).Find(&partners)
+	if err := dbQuery.Offset((page - 1) * limit).Limit(limit).Find(&partners).Error; err != nil {
+		http.Error(w, "Failed to fetch partners", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

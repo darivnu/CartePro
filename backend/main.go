@@ -24,6 +24,7 @@ func main() {
 	mux := routing.NewRouter()
 	database.SeedTestClient()
 	database.SeedTestPartners()
+	database.SeedTestAdmin()
 
 	port := os.Getenv("BACKEND_PORT")
 	if port == "" {

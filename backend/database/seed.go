@@ -47,6 +47,39 @@ func SeedTestClient() {
 	log.Printf("seeded test client -> email: testclient@cartepro.dev password: password123")
 }
 
+func SeedTestAdmin() {
+	var count int64
+	DB.Model(&Admin{}).Count(&count)
+	if count > 0 {
+		log.Println("Database already seeded, skipping test admin creation")
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("failed to hash seed password: %v", err)
+	}
+
+	user := User{
+		Email:        "testadmin@cartepro.dev",
+		PasswordHash: string(hash),
+		Role:         RoleAdmin,
+	}
+	if err := DB.Create(&user).Error; err != nil {
+		log.Fatalf("failed to seed test user: %v", err)
+	}
+
+	admin := Admin{
+		Name: "John Doe",
+		User: user,
+	}
+	if err := DB.Create(&admin).Error; err != nil {
+		log.Fatalf("failed to seed test admin: %v", err)
+	}
+
+	log.Printf("seeded test admin -> email: testadmin@cartepro.dev password: password123")
+}
+
 func SeedTestPartners() {
 	var count int64
 	DB.Model(&Partner{}).Count(&count)
