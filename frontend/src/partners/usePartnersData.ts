@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getPartners, getPartner } from "../api/partners";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { getPartners, getPartner, collectPayment } from "../api/partners";
 import type { GetPartnersParams } from "../api/partners";
 
 export function usePartners(params: GetPartnersParams = {}) {
@@ -17,3 +17,10 @@ export function usePartner(id: string) {
         queryFn: () => getPartner(id),
     });
 }
+
+export function useCollectPayment() {
+    return useMutation({
+        mutationFn: collectPayment,
+    });
+}
+

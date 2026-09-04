@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getBalance, getTransactions, generateQrCode } from "../api/clients";
 
-export function useBalance() {
+export function useBalance(options: { refetchInterval?: number | false } = {}) {
     return useQuery({
         queryKey: ['balance'],
         queryFn: getBalance,
+        refetchInterval: options.refetchInterval,
     });
 }
 
