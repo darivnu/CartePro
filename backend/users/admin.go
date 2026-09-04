@@ -189,6 +189,8 @@ func HandleGetAdminPartners(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	total := len(partners)
+
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -196,6 +198,7 @@ func HandleGetAdminPartners(w http.ResponseWriter, r *http.Request) {
 		"meta": map[string]interface{}{
 			"page":  page,
 			"limit": limit,
+			"total": total,
 		},
 	})
 
