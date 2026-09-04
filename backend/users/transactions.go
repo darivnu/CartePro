@@ -96,8 +96,8 @@ func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
 	database.DB.Save(partner)
 
 	transaction := database.Transaction{
-		ClientID:       client.ID,
-		PartnerID:      &partner.ID,
+		SenderUserID:   client.UserID,
+		ReceiverUserID: partner.UserID,
 		QrTokenID:      &qrToken.ID,
 		Amount:         req.Amount,
 		Type:           database.TransactionTypeDebit,
