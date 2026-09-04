@@ -124,7 +124,7 @@ func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
-	if err != nil {
+	if err != nil || id <= 0 {
 		http.Error(w, "Invalid transaction ID", http.StatusBadRequest)
 		return
 	}
