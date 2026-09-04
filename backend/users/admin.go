@@ -9,7 +9,6 @@ package users
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
