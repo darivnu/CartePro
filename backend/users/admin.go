@@ -75,6 +75,16 @@ func HandleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleApprovePartner(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
 
 	if err != nil {
@@ -134,12 +144,12 @@ func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 	database.DB.Save(&client)
 
 	transaction := database.Transaction{
-		ReceiverUserID:  client.UserID,
-		SenderUserID:    admin.UserID,
-		QrTokenID: nil,
-		Amount:    req.Amount,
-		Type:      database.TransactionTypeTopup,
-		Comment:   &req.Comment,
+		ReceiverUserID: client.UserID,
+		SenderUserID:   admin.UserID,
+		QrTokenID:      nil,
+		Amount:         req.Amount,
+		Type:           database.TransactionTypeTopup,
+		Comment:        &req.Comment,
 	}
 	database.DB.Create(&transaction)
 
