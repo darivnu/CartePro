@@ -9,6 +9,7 @@ package users
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -105,6 +106,74 @@ type AdminTopupRequest struct {
 	ClientID       uint   `json:"client_id"`
 	Amount         int64  `json:"amount"`
 	Comment        string `json:"comment"`
+}
+
+type CancelTransactionRequest struct {
+	Reason string `json:"reason"`
+}
+
+func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
+	user, admin, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid transaction ID", http.StatusBadRequest)
+		return
+	}
+
+	var req CancelTransactionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	var originalTx database.Transaction
+	if err := database.DB.Preload("Client").First(&originalTx, id).Error; err != nil {
+		http.Error(w, "Transaction not found", http.StatusNotFound)
+		return
+	}
+
+	if originalTx.Type != database.TransactionTypeDebit {
+		http.Error(w, "Only debit transactions can be cancelled", http.StatusBadRequest)
+		return
+	}
+
+	reversalTx := database.Transaction{
+		ClientID:       originalTx.ClientID,
+		PartnerID:      originalTx.PartnerID,
+		QrTokenID:      nil,
+		Amount:         originalTx.Amount,
+		Type:           database.TransactionTypeReversal,
+		Comment:        &req.Reason,
+		AdminID:        &admin.ID,
+		IdempotencyKey: nil,
+	}
+
+	if err := database.DB.Create(&reversalTx).Error; err != nil {
+		http.Error(w, "Failed to create reversal transaction", http.StatusInternalServerError)
+		return
+	}
+
+	originalTx.Client.Balance += originalTx.Amount
+	if err := database.DB.Save(&originalTx.Client).Error; err != nil {
+		http.Error(w, "Failed to update client balance", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"transaction": reversalTx,
+	})
 }
 
 func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {

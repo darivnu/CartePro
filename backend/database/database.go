@@ -109,8 +109,9 @@ type QrToken struct {
 type TransactionType string
 
 const (
-	TransactionTypeDebit TransactionType = "debit"
-	TransactionTypeTopup TransactionType = "topup"
+	TransactionTypeDebit    TransactionType = "debit"
+	TransactionTypeTopup    TransactionType = "topup"
+	TransactionTypeReversal TransactionType = "reversal"
 )
 
 type Transaction struct {
