@@ -129,14 +129,18 @@ type CancelTransactionRequest struct {
 func debitcancelTransaction(tx *gorm.DB, originalTx database.Transaction, admin *database.Admin, reason string) (database.Transaction, error) {
 
 	reversalTx := database.Transaction{
-		ReceiverUserID: originalTx.SenderUserID,
-		SenderUserID:   originalTx.ReceiverUserID,
-		QrTokenID:      nil,
-		Amount:         originalTx.Amount,
-		Type:           database.TransactionTypeReversal,
-		Comment:        &reason,
+		ReceiverUserID:        originalTx.SenderUserID,
+		SenderUserID:          originalTx.ReceiverUserID,
+		QrTokenID:             nil,
+		Amount:                originalTx.Amount,
+		Type:                  database.TransactionTypeReversal,
+		Comment:               &reason,
+		OriginalTransactionID: &originalTx.ID,
 	}
 
+	// the unique constraint on original_transaction_id is what actually blocks a
+	// double cancellation: a raced or repeated cancel request hits this insert
+	// and fails here, inside the transaction, instead of a separate check-then-act query
 	if err := tx.Create(&reversalTx).Error; err != nil {
 		return database.Transaction{}, err
 	}
@@ -192,7 +196,12 @@ func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
 		return err
 	})
 
-	if txErr != nil {
+	switch {
+	case txErr == nil:
+	case isUniqueViolation(txErr):
+		http.Error(w, "Transaction already cancelled", http.StatusConflict)
+		return
+	default:
 		http.Error(w, "Failed to cancel transaction", http.StatusInternalServerError)
 		return
 	}
