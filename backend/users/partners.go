@@ -320,3 +320,55 @@ func HandleGetOwnTransactions(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 }
+
+func HandleGetOwnDashboard(w http.ResponseWriter, r *http.Request) {
+	_, partner, err := server.GetPartnerFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	query := r.URL.Query()
+	from := query.Get("from")
+	to := query.Get("to")
+
+	db := database.DB.Model(&database.Transaction{}).Where("sender_user_id = ?", partner.UserID).Or("receiver_user_id = ?", partner.UserID).Order("created_at DESC")
+	if from != "" {
+		fromTime, err := time.Parse(time.RFC3339, from)
+		if err != nil {
+			http.Error(w, "Invalid 'from' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at >= ?", fromTime)
+	}
+	if to != "" {
+		toTime, err := time.Parse(time.RFC3339, to)
+		if err != nil {
+			http.Error(w, "Invalid 'to' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at <= ?", toTime)
+	}
+
+	var total_received int64 = 0 //amount of money
+	transaction_count := 0       //number of transactions
+
+	var transactions []database.Transaction
+	if err := db.Find(&transactions).Error; err != nil {
+		http.Error(w, "Failed to fetch transactions", http.StatusInternalServerError)
+		return
+	}
+
+	for _, tx := range transactions {
+		if tx.ReceiverUserID == partner.UserID {
+			total_received += tx.Amount
+		}
+		transaction_count++
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"total_received":    total_received,
+		"transaction_count": transaction_count,
+	})
+}
