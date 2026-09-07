@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
@@ -318,5 +319,82 @@ func HandleGetOwnTransactions(w http.ResponseWriter, r *http.Request) {
 			"from":        from,
 			"to":          to,
 		},
+	})
+}
+
+type DashboardDayBucket struct {
+	Date             string `json:"date"`
+	TotalReceived    int64  `json:"total_received"`
+	TransactionCount int    `json:"transaction_count"`
+}
+
+func HandleGetOwnPartnerDashboard(w http.ResponseWriter, r *http.Request) {
+	_, partner, err := server.GetPartnerFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	query := r.URL.Query()
+	from := query.Get("from")
+	to := query.Get("to")
+
+	db := database.DB.Model(&database.Transaction{}).Where("sender_user_id = ?", partner.UserID).Or("receiver_user_id = ?", partner.UserID).Order("created_at DESC")
+	if from != "" {
+		fromTime, err := time.Parse(time.RFC3339, from)
+		if err != nil {
+			http.Error(w, "Invalid 'from' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at >= ?", fromTime)
+	}
+	if to != "" {
+		toTime, err := time.Parse(time.RFC3339, to)
+		if err != nil {
+			http.Error(w, "Invalid 'to' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at <= ?", toTime)
+	}
+
+	var total_received int64 = 0 //amount of money
+	transaction_count := 0       //number of transactions
+
+	var transactions []database.Transaction
+	if err := db.Find(&transactions).Error; err != nil {
+		http.Error(w, "Failed to fetch transactions", http.StatusInternalServerError)
+		return
+	}
+
+	byDayMap := make(map[string]*DashboardDayBucket)
+	for _, tx := range transactions {
+		if tx.ReceiverUserID == partner.UserID { //should be all of them but u never know
+			total_received += tx.Amount
+		}
+		transaction_count++
+
+		day := tx.CreatedAt.Format("2006-01-02")
+		bucket, ok := byDayMap[day]
+		if !ok {
+			bucket = &DashboardDayBucket{Date: day}
+			byDayMap[day] = bucket
+		}
+		if tx.ReceiverUserID == partner.UserID {
+			bucket.TotalReceived += tx.Amount
+		}
+		bucket.TransactionCount++
+	}
+
+	by_day := make([]DashboardDayBucket, 0, len(byDayMap))
+	for _, bucket := range byDayMap {
+		by_day = append(by_day, *bucket)
+	}
+	sort.Slice(by_day, func(i, j int) bool { return by_day[i].Date < by_day[j].Date })
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"total_received":    total_received,
+		"transaction_count": transaction_count,
+		"by_day":            by_day,
 	})
 }

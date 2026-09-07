@@ -30,6 +30,7 @@ func NewRouter() *http.ServeMux {
 	mux.HandleFunc("GET /partners/{id}", users.HandleGetSpecificPartner)
 	mux.HandleFunc("GET /partners/me", users.HandleGetOwnPartnerInfo)
 	mux.HandleFunc("GET /partners/me/transactions", users.HandleGetOwnTransactions)
+	mux.HandleFunc("GET /partners/me/dashboard", users.HandleGetOwnPartnerDashboard)
 
 	//client
 	mux.HandleFunc("POST /clients/register", users.HandleClientRegistration)
