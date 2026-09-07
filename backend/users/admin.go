@@ -384,3 +384,41 @@ func HandleGetAdminClients(w http.ResponseWriter, r *http.Request) {
 	})
 
 }
+
+func HandleGetAdminClientDetail(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Error(w, "Invalid client ID", http.StatusBadRequest)
+		return
+	}
+
+	var client database.Client
+	if err := database.DB.Preload("User").First(&client, id).Error; err != nil {
+		http.Error(w, "Client not found", http.StatusNotFound)
+		return
+	}
+
+	var topups []database.Transaction
+	if err := database.DB.Where("receiver_user_id = ? AND type = ?", client.UserID, database.TransactionTypeTopup).Order("created_at DESC").Find(&topups).Error; err != nil {
+		http.Error(w, "Failed to fetch top-ups", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"client": client,
+		"topups": topups,
+	})
+}
