@@ -48,6 +48,6 @@ func NewRouter() *http.ServeMux {
 	mux.HandleFunc("POST /admin/transactions/{id}/cancel", users.HandleCancelTransaction)
 	mux.HandleFunc("PATCH /admin/partners/{id}/minister-pick", users.HandleMinisterPick)
 	mux.HandleFunc("POST /admin/partners/{id}/reject", users.HandleAdminRejectPartner)
-
+	mux.HandleFunc("PATCH /admin/partners/{id}/status", users.HandleUpdatePartnerStatus)
 	return mux
 }
