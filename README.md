@@ -54,7 +54,7 @@ docker compose up --build -d
 docker compose logs -f   # tail logs when you want them
 docker compose down      # stop everything
 ```
-
+ 
 ### Resetting the database
 
 `backend/database/nuke_database.sh` truncates all tables. It reads DB connection settings from `.env`, but `.env`'s `DB_HOST`/`DB_PORT` (`db`/`5432`) only resolve *inside* the Docker network. To run it from the host, override them to point at the published port:
