@@ -2,31 +2,16 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAdminClients } from '../../admin/useAdminClients'
 import { formatCents } from '@/lib/money'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 export function AdminClients() {
-  const [employerId, setEmployerId] = useState('')
   const [page, setPage] = useState(1)
 
-  const parsedEmployerId = employerId.trim() === '' ? undefined : Number(employerId)
-  const clients = useAdminClients({ employerId: parsedEmployerId, page })
-
-  function handleEmployerIdChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setEmployerId(event.target.value)
-    setPage(1)
-  }
+  const clients = useAdminClients({ page })
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-h2 font-display text-brand-blue">Clients</h2>
-
-      <Input
-        value={employerId}
-        onChange={handleEmployerIdChange}
-        placeholder="Filter by employer ID"
-        inputMode="numeric"
-      />
 
       {clients.isLoading && <p className="text-body font-sans text-ink-600">Loading...</p>}
       {clients.isError && (

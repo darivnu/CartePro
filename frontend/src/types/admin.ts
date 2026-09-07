@@ -32,7 +32,6 @@ partner: AdminPartner
 export interface AdminClient {
 ID: number
 UserID: number
-EmployerID: number | null
 Name: string
 Balance: number
 CreatedAt: string
@@ -49,14 +48,12 @@ data: AdminClient[]
 meta: AdminClientsMeta
 }
 
-export type TransactionType = 'debit' | 'topup' | string
+export type TransactionType = 'debit' | 'topup' | 'reversal' | string
 
 export interface AdminTransaction {
 ID: number
-ClientID: number
-PartnerID: number | null
-EmployerID: number | null
-AdminID: number | null
+SenderUserID: number
+ReceiverUserID: number
 Amount: number
 Comment: string | null
 Type: TransactionType

@@ -56,20 +56,18 @@ return apiFetch<AdminPartnerResponse>(`/admin/partners/${id}/minister-pick`, {
 }
 
 export interface GetAdminClientsParams {
-employerId?: number
 page?: number
 limit?: number
 }
 
 export function getAdminClients(params: GetAdminClientsParams = {}) {
-const { employerId, page = 1, limit = 20 } = params
+const { page = 1, limit = 20 } = params
 
 const query = new URLSearchParams()
-if (employerId) query.set('employer_id', String(employerId))
 query.set('page', String(page))
 query.set('limit', String(limit))
 
-return apiFetch<AdminClientsResponse>(`/admin/client?${query.toString()}`)
+return apiFetch<AdminClientsResponse>(`/admin/clients?${query.toString()}`)
 }
 
 export function getAdminClientDetail(id: number) {

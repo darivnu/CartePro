@@ -9,11 +9,11 @@ import type { GetAdminClientsParams } from '../api/admin'
 import { queryClient } from '../api/queryClient'
 
 export function useAdminClients(params: GetAdminClientsParams = {}) {
-  const { employerId, page = 1, limit = 20 } = params
+  const { page = 1, limit = 20 } = params
 
   return useQuery({
-    queryKey: ['admin-clients', employerId, page, limit],
-    queryFn: () => getAdminClients({ employerId, page, limit }),
+    queryKey: ['admin-clients', page, limit],
+    queryFn: () => getAdminClients({ page, limit }),
   })
 }
 
