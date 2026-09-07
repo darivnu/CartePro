@@ -109,8 +109,9 @@ type QrToken struct {
 type TransactionType string
 
 const (
-	TransactionTypeDebit TransactionType = "debit"
-	TransactionTypeTopup TransactionType = "topup"
+	TransactionTypeDebit    TransactionType = "debit"
+	TransactionTypeTopup    TransactionType = "topup"
+	TransactionTypeReversal TransactionType = "reversal"
 )
 
 type Transaction struct {
@@ -122,6 +123,7 @@ type Transaction struct {
 	QrTokenID      *uint
 	QrToken        *QrToken
 	IdempotencyKey *string `gorm:"unique"` // enforced by the DB. NULL will not collide, so we can have multiple transactions with no idempotency key (e.g. topups). but if a key is provided, it must be unique.
+	OriginalTransactionID *uint `gorm:"unique"` // set on reversal transactions to the debit they reverse. unique constraint (same NULL-safe pattern as IdempotencyKey) blocks a debit from being reversed twice, even concurrently.
 	Amount         int64
 	CreatedAt      time.Time
 	Comment        *string

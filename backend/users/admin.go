@@ -122,6 +122,97 @@ type AdminTopupRequest struct {
 	Comment  string `json:"comment"`
 }
 
+type CancelTransactionRequest struct {
+	Reason string `json:"reason"`
+}
+
+func debitcancelTransaction(tx *gorm.DB, originalTx database.Transaction, admin *database.Admin, reason string) (database.Transaction, error) {
+
+	reversalTx := database.Transaction{
+		ReceiverUserID:        originalTx.SenderUserID,
+		SenderUserID:          originalTx.ReceiverUserID,
+		QrTokenID:             nil,
+		Amount:                originalTx.Amount,
+		Type:                  database.TransactionTypeReversal,
+		Comment:               &reason,
+		OriginalTransactionID: &originalTx.ID,
+	}
+
+	// the unique constraint on original_transaction_id is what actually blocks a
+	// double cancellation: a raced or repeated cancel request hits this insert
+	// and fails here, inside the transaction, instead of a separate check-then-act query
+	if err := tx.Create(&reversalTx).Error; err != nil {
+		return database.Transaction{}, err
+	}
+
+	if err := tx.Model(&database.Client{}).
+		Where("user_id = ?", originalTx.ReceiverUserID).
+		Update("balance", gorm.Expr("balance + ?", originalTx.Amount)).Error; err != nil {
+		return database.Transaction{}, err
+	}
+
+	return reversalTx, nil
+}
+
+func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Error(w, "Invalid transaction ID", http.StatusBadRequest)
+		return
+	}
+
+	var req CancelTransactionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	var originalTx database.Transaction
+	if err := database.DB.Preload("Client").First(&originalTx, id).Error; err != nil {
+		http.Error(w, "Transaction not found", http.StatusNotFound)
+		return
+	}
+
+	if originalTx.Type != database.TransactionTypeDebit {
+		http.Error(w, "Only debit transactions can be cancelled", http.StatusBadRequest)
+		return
+	}
+
+	var reversalTx database.Transaction
+	txErr := database.DB.Transaction(func(tx *gorm.DB) error {
+		var err error
+		reversalTx, err = debitcancelTransaction(tx, originalTx, nil, req.Reason)
+		return err
+	})
+
+	switch {
+	case txErr == nil:
+	case isUniqueViolation(txErr):
+		http.Error(w, "Transaction already cancelled", http.StatusConflict)
+		return
+	default:
+		http.Error(w, "Failed to cancel transaction", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"transaction": reversalTx,
+	})
+}
+
 func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 	user, admin, err := server.GetAdminFromSession(r)
 	if err != nil {
