@@ -1,14 +1,17 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { RoleGuard } from './routes/RoleGuard'
 import { ClientHome } from './routes/client/ClientHome'
 import { PartnerCatalog } from './routes/client/PartnerCatalog'
 import { PartnerDetail } from './routes/client/PartnerDetail'
 import { PartnerHome } from './routes/partner/PartnerHome'
-import { AdminHome } from './routes/admin/AdminHome'
 import { LoginPage } from './routes/LoginPage'
 import { TermsOfUse } from './routes/TermsOfUse'
 import { AccessibilityStatement } from './routes/AccessibilityStatement'
 import { RootRedirect } from './routes/RootRedirect'
+import { AdminLayout } from './routes/admin/AdminLayout'
+import { AdminPartners } from './routes/admin/AdminPartners'
+import { AdminClients } from './routes/admin/AdminClients'
+import { AdminClientDetail } from './routes/admin/AdminClientDetail'
 
 function App() {
   return (
@@ -46,13 +49,18 @@ function App() {
         }
       />
       <Route
-        path="/admin"
-        element={
-          <RoleGuard role="admin">
-            <AdminHome />
-          </RoleGuard>
-        }
-      />
+          path="/admin"
+          element={
+            <RoleGuard role="admin">
+              <AdminLayout />
+            </RoleGuard>
+          }
+        >
+          <Route index element={<Navigate to="/admin/partners" replace />} />
+          <Route path="partners" element={<AdminPartners />} />
+          <Route path="clients" element={<AdminClients />} />
+          <Route path="clients/:id" element={<AdminClientDetail />} />
+        </Route>
       <Route path="/login"
       element={<LoginPage />}
       />
