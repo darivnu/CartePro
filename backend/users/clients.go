@@ -9,7 +9,6 @@ package users
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -20,10 +19,9 @@ import (
 )
 
 type ClientRegistrationRequest struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Name       string `json:"name"`
-	EmployerID uint   `json:"employer_id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
 }
 
 func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
@@ -38,20 +36,6 @@ func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
 	database.DB.Where("email = ?", req.Email).First(&existingUser)
 	if existingUser.ID != 0 {
 		http.Error(w, "Email already exists", http.StatusConflict)
-		return
-	}
-
-	//check if employer exists
-	var employer database.Employer
-	var employer_exists bool = true
-	if err := database.DB.First(&employer, req.EmployerID).Error; err != nil {
-		employer_exists = false
-		log.Printf("Employer with ID %d does not exist, proceeding without employer association", req.EmployerID)
-	}
-
-	//if employer does not exist, check if there the one they sent is 0 (so its a placeholder meant to be updated later). if it isn't, the error
-	if req.EmployerID != 0 && !employer_exists {
-		http.Error(w, "Employer not found", http.StatusBadRequest)
 		return
 	}
 
@@ -73,19 +57,9 @@ func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var client database.Client
-	if employer_exists {
-		client = database.Client{
-			UserID:     user.ID,
-			Name:       req.Name,
-			EmployerID: &employer.ID,
-		}
-	} else {
-		client = database.Client{
-			UserID:     user.ID,
-			Name:       req.Name,
-			EmployerID: nil,
-		}
+	client := database.Client{
+		UserID: user.ID,
+		Name:   req.Name,
 	}
 
 	if err := database.DB.Create(&client).Error; err != nil {

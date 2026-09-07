@@ -13,7 +13,7 @@ set -a
 source "$ENV_FILE"
 set +a
 
-TABLES="transactions, qr_tokens, clients, partners, admins, employers, sessions, users"
+TABLES="transactions, qr_tokens, clients, partners, admins, sessions, users"
 
 echo "Truncating tables in database '$DB_NAME' on $DB_HOST:$DB_PORT..."
 
