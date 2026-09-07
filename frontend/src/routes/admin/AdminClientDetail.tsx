@@ -120,7 +120,7 @@ export function AdminClientDetail() {
                     <p className="text-body-strong font-sans text-ink-900">
                       {formatCents(transaction.Amount)}
                     </p>
-                    {transaction.OriginalTransactionID === null && (
+                    {transaction.OriginalTransactionID === null && transaction.Type === 'debit' && (
                       <Button
                         size="sm"
                         onClick={() => setCancellingTransaction(transaction)}
