@@ -467,3 +467,53 @@ func HandleMinisterPick(w http.ResponseWriter, r *http.Request) {
 		"partner": partner,
 	})
 }
+
+type AdminRejectPartnerRequest struct {
+	Reason string `json:"reason"`
+}
+
+func HandleAdminRejectPartner(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+
+	if err != nil {
+		http.Error(w, "Invalid partner ID", http.StatusBadRequest)
+		return
+	}
+
+	var req struct {
+		Reason string `json:"reason"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Reason == "" {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	var partner database.Partner
+	if err := database.DB.Preload("User").First(&partner, id).Error; err != nil {
+		http.Error(w, "Partner not found", http.StatusNotFound)
+		return
+	}
+	partner.Status = database.StatusRejected
+	if (req.Reason) != "" {
+		partner.RejectReason = &req.Reason
+	}
+	if err := database.DB.Save(&partner).Error; err != nil {
+		http.Error(w, "Failed to reject partner", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"partner": partner,
+	})
+}
