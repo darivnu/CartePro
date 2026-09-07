@@ -18,7 +18,7 @@ export function TermsOfUse() {
         <h1 className="text-h1 font-display text-brand-blue">Terms of Use</h1>
 
         <p className="text-body font-sans text-ink-600">
-          Ticket Tout is a simulation. No real monetary value is issued,
+          CartePro is a simulation. No real monetary value is issued,
           transferred, or held at any point: balances, top-ups and payments
           shown in the application are for demonstration purposes only and do
           not constitute a payment service.
@@ -45,7 +45,7 @@ export function TermsOfUse() {
         <div className="flex flex-col gap-2">
           <h2 className="text-h2 font-display text-brand-blue">Transaction finality</h2>
           <p className="text-body font-sans text-ink-600">
-            Once validated, a transaction is final. Ticket Tout does not
+            Once validated, a transaction is final. CartePro does not
             currently offer a way to cancel, reverse, or refund a validated
             transaction.
           </p>

@@ -28,7 +28,7 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-200 p-4">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
-        <h1 className="sr-only">Log in to Ticket Tout</h1>
+        <h1 className="sr-only">Log in to CartePro</h1>
         <Wordmark />
         <Card className="w-full rounded-[12px] border border-surface-400 shadow-card-highlight ring-0">
           <CardHeader>

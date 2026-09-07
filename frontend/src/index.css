@@ -4,26 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-    font-family: "Marianne";
-    src: url("/fonts/Marianne-Medium.woff2") format("woff2");
-    font-weight: 500 600;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Marianne";
-    src: url("/fonts/Marianne-Bold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
 @theme {
     --color-brand-blue: #1B3A6B;
-    --color-accent-amber: #EFA93C;
-    --color-paper-cream: #FBF3E7;
+    --color-coral: #FF6B57;
 
     --color-graphite-900: #1B1E22;
     --color-graphite-800: #262A2F;
@@ -59,8 +42,8 @@
 
     --background-image-card-gradient: linear-gradient(160deg, var(--color-graphite-700) 0%, var(--color-graphite-900) 55%, var(--color-graphite-800) 100%);
 
-    --font-display: "Marianne", ui-sans-serif, system-ui, sans-serif;
-    --font-sans: "Spectral", ui-serif, Georgia, serif;
+    --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 
     --radius-card: 12px;
     --radius-panel: 8px;
@@ -102,7 +85,7 @@
 
     --text-wordmark: 1.0625rem;
     --text-wordmark--line-height: 1;
-    --text-wordmark--letter-spacing: 0.16em;
+    --text-wordmark--letter-spacing: -0.02em;
     --text-wordmark--font-weight: 700;
 
     --text-card-number: 0.8125rem;
