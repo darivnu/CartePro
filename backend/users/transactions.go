@@ -28,7 +28,7 @@ type QrValidationRequest struct {
 }
 
 var (
-	errQrTokenUnavailable = errors.New("qr token not found, expired, or already used")
+	errQrTokenUnavailable  = errors.New("qr token not found, expired, or already used")
 	errInsufficientBalance = errors.New("insufficient balance")
 )
 
@@ -186,7 +186,7 @@ func HandleGetClientOwnTransactions(w http.ResponseWriter, r *http.Request) {
 	from := query.Get("from")
 	to := query.Get("to")
 
-	db := database.DB.Model(&database.Transaction{}).Where("client_id = ?", client.ID)
+	db := database.DB.Model(&database.Transaction{}).Where("sender_user_id = ?", client.UserID).Or("receiver_user_id = ?", client.UserID).Order("created_at DESC")
 	if from != "" {
 		fromTime, err := time.Parse(time.RFC3339, from)
 		if err != nil {
