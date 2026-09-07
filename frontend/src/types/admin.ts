@@ -61,12 +61,9 @@ CreatedAt: string
 OriginalTransactionID: number | null
 }
 
-export interface AdminClientDetail extends AdminClient {
-Transactions: AdminTransaction[]
-}
-
 export interface AdminClientDetailResponse {
-client: AdminClientDetail
+client: AdminClient
+topups: AdminTransaction[]
 }
 
 export interface CreateTopupRequest {
