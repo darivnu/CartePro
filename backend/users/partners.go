@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
@@ -321,7 +322,13 @@ func HandleGetOwnTransactions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func HandleGetOwnDashboard(w http.ResponseWriter, r *http.Request) {
+type DashboardDayBucket struct {
+	Date             string `json:"date"`
+	TotalReceived    int64  `json:"total_received"`
+	TransactionCount int    `json:"transaction_count"`
+}
+
+func HandleGetOwnPartnerDashboard(w http.ResponseWriter, r *http.Request) {
 	_, partner, err := server.GetPartnerFromSession(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -358,17 +365,36 @@ func HandleGetOwnDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	byDayMap := make(map[string]*DashboardDayBucket)
 	for _, tx := range transactions {
-		if tx.ReceiverUserID == partner.UserID {
+		if tx.ReceiverUserID == partner.UserID { //should be all of them but u never know
 			total_received += tx.Amount
 		}
 		transaction_count++
+
+		day := tx.CreatedAt.Format("2006-01-02")
+		bucket, ok := byDayMap[day]
+		if !ok {
+			bucket = &DashboardDayBucket{Date: day}
+			byDayMap[day] = bucket
+		}
+		if tx.ReceiverUserID == partner.UserID {
+			bucket.TotalReceived += tx.Amount
+		}
+		bucket.TransactionCount++
 	}
+
+	by_day := make([]DashboardDayBucket, 0, len(byDayMap))
+	for _, bucket := range byDayMap {
+		by_day = append(by_day, *bucket)
+	}
+	sort.Slice(by_day, func(i, j int) bool { return by_day[i].Date < by_day[j].Date })
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"total_received":    total_received,
 		"transaction_count": transaction_count,
+		"by_day":            by_day,
 	})
 }
