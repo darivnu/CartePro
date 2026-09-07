@@ -430,6 +430,44 @@ func HandleGetAdminClientDetail(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type MinisterPickRequest struct {
+	Reason bool `json:"minister_pick"`
+}
+
+func HandleMinisterPick(w http.ResponseWriter, r *http.Request) {
+	_, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Error(w, "Invalid partner ID", http.StatusBadRequest)
+		return
+	}
+	var req MinisterPickRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	var partner database.Partner
+	if err := database.DB.Preload("User").First(&partner, id).Error; err != nil {
+		http.Error(w, "Partner not found", http.StatusNotFound)
+		return
+	}
+	partner.MinisterPick = req.Reason
+	if err := database.DB.Save(&partner).Error; err != nil {
+		http.Error(w, "Failed to pick partner", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"partner": partner,
+	})
+}
+
 type AdminRejectPartnerRequest struct {
 	Reason string `json:"reason"`
 }
