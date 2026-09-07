@@ -21,7 +21,7 @@ export function AccessibilityStatement() {
         </h2>
 
         <p className="text-body font-sans text-ink-600">
-          Ticket Tout targets RGAA (Référentiel Général d'Amélioration de
+          CartePro targets RGAA (Référentiel Général d'Amélioration de
           l'Accessibilité) level AA. Every screen follows a heading structure
           a screen reader can navigate, form fields carry visible labels,
           interactive elements are real buttons and links rather than styled

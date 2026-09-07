@@ -5,12 +5,15 @@ interface LogoProps {
 export function Logo({ className }: LogoProps) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
+      <rect width="64" height="64" rx="16" className="fill-brand-blue" />
       <path
-        d="M14 0 H50 A14 14 0 0 1 64 14 V26.5 A5.5 5.5 0 0 0 64 37.5 V50 A14 14 0 0 1 50 64 H14 A14 14 0 0 1 0 50 V37.5 A5.5 5.5 0 0 0 0 26.5 V14 A14 14 0 0 1 14 0 Z"
-        className="fill-brand-blue"
+        d="M40 18.1A16 16 0 1 0 40 45.9"
+        fill="none"
+        stroke="#FFFFFF"
+        strokeWidth="9"
+        strokeLinecap="round"
       />
-      <rect x="27.5" y="21" width="9" height="28" rx="1.5" className="fill-paper-cream" />
-      <rect x="15" y="15" width="34" height="9" rx="1.5" className="fill-accent-amber" />
+      <circle cx="45" cy="32" r="5.5" className="fill-coral" />
     </svg>
   )
 }
