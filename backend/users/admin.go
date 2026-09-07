@@ -186,7 +186,7 @@ func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var originalTx database.Transaction
-	if err := database.DB.Preload("Client").First(&originalTx, id).Error; err != nil {
+	if err := database.DB.First(&originalTx, id).Error; err != nil {
 		http.Error(w, "Transaction not found", http.StatusNotFound)
 		return
 	}
@@ -425,7 +425,7 @@ func HandleGetAdminClientDetail(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"client": client,
+		"client":       client,
 		"transactions": transactions,
 	})
 }
