@@ -1,0 +1,73 @@
+Hi team!
+
+Benjamin Sellami, the Minister's communications adviser. A quick note to introduce myself and set the ground rules on image, because CartePro is the project the mainstream press will talk about. A card people carry in their pocket tells its own story.
+1. The ministerial brand guidelines are mandatory
+
+The full document runs to 47 pages and my secretariat is sending it over today. Do not wait for it though, the essentials fit in three lines.
+
+    Institutional blue #1B3A6B as primary, never as a button background.
+    Marianne for headings, Spectral for body text.
+    Lockup top left, clear space respected, never sitting on a photograph.
+
+2. The displayed name is CartePro
+
+The Minister uses another name internally. In the interface and in any screenshot that might leave the Ministry: CartePro. We hold the brand.
+
+And "in the interface" means the whole interface, not just the home page. Browser tab titles, the login screen, the footer, the emails your application sends, the error pages, the labels of all three spaces, the demo datasets, the repository title and its README. Run a grep -ri over the repository before replying and paste me the result: if it comes back empty, we are fine, and it costs you two minutes. I ask because last year a team went on the evening news with an internal code name in their tab title, and that is the only thing anyone remembered.
+3. Ready-to-air presentation video
+
+A video under 2 minutes, 1080p, burnt-in subtitles, to be handed straight to newsrooms. The story to show: an employee opens their space, sees their balance, picks a partner nearby, pays in three seconds. It is an everyday gesture and we need to feel it.
+
+One point I will not bend on, sorry: it must be a screen capture of your application actually running, and not a mockup. No slides, no clickable prototype filmed in place of the product. A newsroom spots a fake in ten seconds and we never recover from it. Nobody is expecting a film, mind you: a narrated screen recording does the job perfectly well, as long as the real product is behind it.
+
+Send me the script with timecodes and the single sentence you would use as a headline if only one of your messages survived a newsroom edit. And if you cannot fit into the 2 minutes, tell me which moment of the journey you cut and why. You are the ones who know the product, that call is yours.
+4. One point of caution, between us
+
+Be careful how you present the partner list on screen. Stay on neutral categories (food, culture, leisure) rather than hard-coded brand names. That leaves us some room if the list changes. And it probably will.
+
+Concretely, I would rather those categories lived in your data and not in your templates: a category can be added, renamed or removed without touching a line of interface code, the search screen and the catalogue adapt on their own, and an empty category renders cleanly instead of breaking the layout. I am asking for this now, on day two, because doing it now is an hour and doing it next week is an afternoon. Trust me on this one.
+
+Delivery by Friday 12:00. Looking forward to it! 🙌
+
+Benjamin Sellami - Communications Adviser
+Minister's Office - Ministry of Job and Happiness
+
+Reply from us:
+
+Dear Mr Sellami,
+Thank you for your message and for setting out the communications and branding requirements for the project.
+We have reviewed your instructions against the latest annotated specification and would like to clarify two points before we apply the branding changes across the application.
+First, regarding the displayed product name, the annotated specification states that “CartePro” was the working name and that the Minister had renamed the project “Ticket Tout.” Your latest instructions, however, specify that the public-facing name must remain “CartePro” throughout the entire interface, screenshots, browser titles, documentation, demo data and repository materials.
+Could you please confirm whether we should now treat CartePro as the definitive external/public name, and reserve “Ticket Tout” strictly as an internal designation that must not appear anywhere in the product or public-facing material?
+Second, regarding the partner catalogue, the annotated specification explicitly requires the Week 1 proof of concept to include the listed launch partners rather than fictitious ones. The specification also names those partners individually. Your message asks us to keep the on-screen presentation focused on neutral categories rather than hard-coded brand names.
+Our proposed interpretation is therefore the following: partner names and categories will both be stored as data rather than embedded in the interface code; the catalogue will remain fully data-driven; and the launch partners required by the specification can still be displayed when present in the dataset, while the UI itself remains structured around neutral categories such as food, culture and leisure.
+Please confirm whether this interpretation is correct, or whether the individual partner names should not appear on screen at all.
+For the remaining requirements, we have noted the mandatory use of institutional blue #1B3A6B as the primary colour without using it as a button background, the required typography and lockup placement, as well as the Friday 12:00 delivery of the sub-two-minute 1080p screen-capture video with burnt-in subtitles.
+Once we receive confirmation on the two points above, we will apply the naming and catalogue rules consistently across the entire interface and repository.
+Kind regards,
+Gerard Du Pre,
+
+
+Reply from them:
+
+Hi team,
+
+Thank you for flagging both points. You are right to ask before applying the changes everywhere.
+
+On the name, yes: CartePro is the definitive external and public-facing name for now. Ticket Tout is an internal designation from the Minister's annotations and must not appear in the interface, screenshots, browser titles, documentation, demo data, repository materials or anything else that could leave the Ministry.
+
+I know this is slightly ridiculous given that I am the person who asked you to use CartePro after having previously told you otherwise. I defended CartePro in front of the Minister for twenty minutes and lost. Then I got the name back. This is where we are.
+
+On the partner catalogue, either interpretation can be correct.
+
+I would not remove the individual partner names from the product just to make the interface more generic. If the specification asks us to demonstrate the catalogue, the catalogue needs real entries behind it.
+
+The other points you listed are correct: #1B3A6B as the institutional blue, Marianne and Spectral, lockup placement, and the Friday 12:00 delivery for the sub-two-minute 1080p screen capture with burnt-in subtitles.
+
+One last thing: please keep a clear record of these naming decisions. If another version of the specification tells you something different, don't silently overwrite your previous choice. Flag the contradiction.
+
+Thanks for checking this now rather than discovering it on Friday.
+
+
+Benjamin Sellami - Conseiller en communication
+Cabinet du Ministre - Ministère du Job et Bonheur

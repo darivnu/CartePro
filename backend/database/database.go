@@ -115,22 +115,18 @@ const (
 )
 
 type Transaction struct {
-	ID             uint `gorm:"primaryKey"`
-	ClientID       uint
-	Client         Client `gorm:"foreignKey:ClientID"`
-	PartnerID      *uint
-	Partner        *Partner `gorm:"foreignKey:PartnerID"`
-	EmployerID     *uint
-	Employer       *Employer `gorm:"foreignKey:EmployerID"`
+	ID             uint
+	SenderUserID   uint //debit: paying client's user id. topup: authorizing admin's user id (money created)
+	Sender         User `gorm:"foreignKey:SenderUserID"`
+	ReceiverUserID uint //party whose balance increases
+	Receiver       User `gorm:"foreignKey:ReceiverUserID"`
 	QrTokenID      *uint
-	QrToken        *QrToken `gorm:"foreignKey:QrTokenID"`
-	IdempotencyKey *string  `gorm:"uniqueIndex"` //nil for topups or admin stuff
-	AdminID        *uint
-	Admin          *Admin `gorm:"foreignKey:AdminID"`
+	QrToken        *QrToken
+	IdempotencyKey *string `gorm:"unique"` // enforced by the DB. NULL will not collide, so we can have multiple transactions with no idempotency key (e.g. topups). but if a key is provided, it must be unique.
 	Amount         int64
 	CreatedAt      time.Time
-	Comment        *string         // pointer to string to allow null value
-	Type           TransactionType `gorm:"type:varchar(20);not null;check:type IN ('debit','topup')"`
+	Comment        *string
+	Type           TransactionType
 }
 
 func InitDatabase() {

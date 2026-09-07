@@ -9,18 +9,33 @@ package users
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
 
 	"cartepro/database"
 	"cartepro/server"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"gorm.io/gorm"
 )
 
 type QrValidationRequest struct {
 	QrPayload      string `json:"qr_payload"`
 	Amount         int64  `json:"amount"`
 	IdempotencyKey string `json:"idempotency_key"`
+}
+
+var (
+	errQrTokenUnavailable  = errors.New("qr token not found, expired, or already used")
+	errInsufficientBalance = errors.New("insufficient balance")
+)
+
+// isUniqueViolation reports whether err is a Postgres unique-constraint failure.
+func isUniqueViolation(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505" //code for unique violation
 }
 
 func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
@@ -40,74 +55,111 @@ func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//idempotency: a retried request with the same key replays the original
-	//result instead of being processed twice
-	//this is because the client may retry a request if they don't get a response, and we don't want to charge them twice
-	var existing database.Transaction
-	if err := database.DB.Where("idempotency_key = ?", req.IdempotencyKey).First(&existing).Error; err == nil {
-		w.WriteHeader(http.StatusCreated)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": existing})
-		return
-	}
-
 	token, expiresAt, err := verifyQrPayload(req.QrPayload)
 	if err != nil || time.Now().After(expiresAt) {
 		http.Error(w, "Invalid or expired QR code", http.StatusBadRequest)
 		return
 	}
 
+	// everything in debitClientForQr runs in one DB transaction: the QR-token claim,
+	// the balance move, and the ledger insert either all land or all roll back
+	// together, so a failure partway through (insufficient balance, a raced
+	// idempotency key, ...) can never leave the token claimed but the money
+	// unmoved, or vice versa
+	var transaction database.Transaction
+	txErr := database.DB.Transaction(func(tx *gorm.DB) error {
+		var err error
+		transaction, err = debitClientForQr(tx, token, req, partner)
+		return err
+	})
+
+	switch {
+	case txErr == nil:
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+	case errors.Is(txErr, errQrTokenUnavailable):
+		http.Error(w, "QR code not found, expired, or already used", http.StatusConflict)
+	case errors.Is(txErr, errInsufficientBalance):
+		http.Error(w, "Insufficient balance", http.StatusPaymentRequired)
+	case isUniqueViolation(txErr):
+		// a retried request with the same idempotency key replays the original
+		// result instead of being processed twice
+		var existing database.Transaction
+		if err := database.DB.Where("idempotency_key = ?", req.IdempotencyKey).First(&existing).Error; err != nil {
+			http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": existing})
+	default:
+		http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
+	}
+}
+
+// debitClientForQr claims the QR token, moves the balance from client to partner,
+// and inserts the ledger row, all against tx so the caller can run it inside a
+// single DB transaction.
+func debitClientForQr(tx *gorm.DB, token string, req QrValidationRequest, partner *database.Partner) (database.Transaction, error) {
 	// atomically claim the token: this single conditional UPDATE is the whole
 	// concurrency guard, only one concurrent request can match "used_at IS NULL"
 	// for a given row, so a code can never be redeemed twice
 	now := time.Now()
-	claim := database.DB.Model(&database.QrToken{}).
+	claim := tx.Model(&database.QrToken{}).
 		Where("token = ? AND used_at IS NULL AND expires_at > ?", token, now).
 		Update("used_at", now)
 	if claim.Error != nil {
-		http.Error(w, "Failed to process QR code", http.StatusInternalServerError)
-		return
+		return database.Transaction{}, claim.Error
 	}
-	//rowsaffected come from the update, if no rows were updated, it means the token was already used or expired
 	if claim.RowsAffected == 0 {
-		http.Error(w, "QR code not found, expired, or already used", http.StatusConflict)
-		return
+		return database.Transaction{}, errQrTokenUnavailable
 	}
 
 	var qrToken database.QrToken
-	if err := database.DB.Where("token = ?", token).First(&qrToken).Error; err != nil {
-		http.Error(w, "QR code not found", http.StatusNotFound)
-		return
+	if err := tx.Where("token = ?", token).First(&qrToken).Error; err != nil {
+		return database.Transaction{}, err
 	}
 
 	var client database.Client
-	if err := database.DB.First(&client, qrToken.ClientID).Error; err != nil {
-		http.Error(w, "Client not found", http.StatusNotFound)
-		return
-	}
-	if client.Balance < req.Amount {
-		http.Error(w, "Insufficient balance", http.StatusPaymentRequired)
-		return
+	if err := tx.First(&client, qrToken.ClientID).Error; err != nil {
+		return database.Transaction{}, err
 	}
 
-	client.Balance -= req.Amount
-	partner.Balance += req.Amount
-	database.DB.Save(&client)
-	database.DB.Save(partner)
+	// atomic conditional debit: the WHERE clause re-checks the balance at write
+	// time, so two concurrent requests can't both read a stale balance and both
+	// succeed (the same pattern as the QR-token claim above)
+	debit := tx.Model(&database.Client{}).
+		Where("id = ? AND balance >= ?", client.ID, req.Amount).
+		Update("balance", gorm.Expr("balance - ?", req.Amount))
+	if debit.Error != nil {
+		return database.Transaction{}, debit.Error
+	}
+	if debit.RowsAffected == 0 {
+		return database.Transaction{}, errInsufficientBalance
+	}
+
+	if err := tx.Model(&database.Partner{}).
+		Where("id = ?", partner.ID).
+		Update("balance", gorm.Expr("balance + ?", req.Amount)).Error; err != nil {
+		return database.Transaction{}, err
+	}
 
 	transaction := database.Transaction{
-		ClientID:       client.ID,
-		PartnerID:      &partner.ID,
+		SenderUserID:   client.UserID,
+		ReceiverUserID: partner.UserID,
 		QrTokenID:      &qrToken.ID,
 		Amount:         req.Amount,
 		Type:           database.TransactionTypeDebit,
 		IdempotencyKey: &req.IdempotencyKey,
 	}
-	database.DB.Create(&transaction)
-
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+	// the unique constraint on idempotency_key is what actually makes this
+	// atomic: a raced retry with the same key hits this insert and fails here,
+	// inside the transaction, instead of a separate check-then-act query
+	if err := tx.Create(&transaction).Error; err != nil {
+		return database.Transaction{}, err
+	}
+	return transaction, nil
 }
 
 func HandleGetClientOwnTransactions(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +186,7 @@ func HandleGetClientOwnTransactions(w http.ResponseWriter, r *http.Request) {
 	from := query.Get("from")
 	to := query.Get("to")
 
-	db := database.DB.Model(&database.Transaction{}).Where("client_id = ?", client.ID)
+	db := database.DB.Model(&database.Transaction{}).Where("sender_user_id = ?", client.UserID).Or("receiver_user_id = ?", client.UserID).Order("created_at DESC")
 	if from != "" {
 		fromTime, err := time.Parse(time.RFC3339, from)
 		if err != nil {

@@ -9,14 +9,19 @@ package users
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 
 	"cartepro/database"
 	"cartepro/server"
 )
+
+// maxTopupAmount caps a single admin top-up at 10,000.00 EUR (balances are stored in cents).
+const maxTopupAmount = 1_000_000
 
 type AdminRegistrationRequest struct {
 	Email    string `json:"email"`
@@ -75,6 +80,16 @@ func HandleAdminRegistration(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleApprovePartner(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
 
 	if err != nil {
@@ -187,34 +202,62 @@ func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req AdminTopupRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Amount <= 0 || req.Amount > maxTopupAmount {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	var client database.Client
-	if err := database.DB.First(&client, req.ClientID).Error; err != nil {
+	// balance move and ledger insert run in one DB transaction (see
+	// creditClientTopup) so a failure partway through (client vanishes, insert
+	// fails, ...) can't leave the balance bumped with no matching transaction row,
+	// or vice versa
+	var transaction database.Transaction
+	txErr := database.DB.Transaction(func(tx *gorm.DB) error {
+		var err error
+		transaction, err = creditClientTopup(tx, req, admin)
+		return err
+	})
+
+	switch {
+	case txErr == nil:
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+	case errors.Is(txErr, gorm.ErrRecordNotFound):
 		http.Error(w, "Client not found", http.StatusNotFound)
-		return
+	default:
+		http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
+	}
+}
+
+// creditClientTopup bumps the client's balance and inserts the ledger row, both
+// against tx so the caller can run it inside a single DB transaction.
+func creditClientTopup(tx *gorm.DB, req AdminTopupRequest, admin *database.Admin) (database.Transaction, error) {
+	var client database.Client
+	if err := tx.First(&client, req.ClientID).Error; err != nil {
+		return database.Transaction{}, err
 	}
 
-	client.Balance += req.Amount
-	database.DB.Save(&client)
+	// atomic increment: no read-modify-write window for a concurrent top-up
+	// on the same client to race and clobber
+	if err := tx.Model(&database.Client{}).
+		Where("id = ?", client.ID).
+		Update("balance", gorm.Expr("balance + ?", req.Amount)).Error; err != nil {
+		return database.Transaction{}, err
+	}
 
 	transaction := database.Transaction{
-		ClientID:  client.ID,
-		PartnerID: nil,
-		QrTokenID: nil,
-		Amount:    req.Amount,
-		Type:      database.TransactionTypeTopup,
-		Comment:   &req.Comment,
-		AdminID:   &admin.ID,
+		ReceiverUserID: client.UserID,
+		SenderUserID:   admin.UserID,
+		QrTokenID:      nil,
+		Amount:         req.Amount,
+		Type:           database.TransactionTypeTopup,
+		Comment:        &req.Comment,
 	}
-	database.DB.Create(&transaction)
-
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+	if err := tx.Create(&transaction).Error; err != nil {
+		return database.Transaction{}, err
+	}
+	return transaction, nil
 }
 
 func HandleGetAdminPartners(w http.ResponseWriter, r *http.Request) {
