@@ -151,6 +151,13 @@ func debitcancelTransaction(tx *gorm.DB, originalTx database.Transaction, admin 
 		return database.Transaction{}, err
 	}
 
+	//update the original transaction to mark it as cancelled
+	if err := tx.Model(&database.Transaction{}).
+		Where("id = ?", originalTx.ID).
+		Update("cancelled", true).Error; err != nil {
+		return database.Transaction{}, err
+	}
+
 	return reversalTx, nil
 }
 
@@ -409,8 +416,8 @@ func HandleGetAdminClientDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var topups []database.Transaction
-	if err := database.DB.Where("receiver_user_id = ? AND type = ?", client.UserID, database.TransactionTypeTopup).Order("created_at DESC").Find(&topups).Error; err != nil {
+	var transactions []database.Transaction
+	if err := database.DB.Where("receiver_user_id = ? OR sender_user_id = ?", client.UserID, client.UserID).Order("created_at DESC").Find(&transactions).Error; err != nil {
 		http.Error(w, "Failed to fetch top-ups", http.StatusInternalServerError)
 		return
 	}
@@ -419,6 +426,6 @@ func HandleGetAdminClientDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"client": client,
-		"topups": topups,
+		"transactions": transactions,
 	})
 }

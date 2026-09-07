@@ -115,6 +115,7 @@ type Transaction struct {
 	OriginalTransactionID *uint   `gorm:"unique"` // set on reversal transactions to the debit they reverse. unique constraint (same NULL-safe pattern as IdempotencyKey) blocks a debit from being reversed twice, even concurrently.
 	Amount                int64
 	CreatedAt             time.Time
+	Cancelled             bool `gorm:"default:false"` // set to true when it gets reversed by a compensating reversal transaction. the original transaction record is left untouched, but this flag marks it as cancelled.
 	Comment               *string
 	Type                  TransactionType
 }
