@@ -337,3 +337,50 @@ func HandleGetAdminPartners(w http.ResponseWriter, r *http.Request) {
 	})
 
 }
+
+func HandleGetAdminClients(w http.ResponseWriter, r *http.Request) {
+	user, _, err := server.GetAdminFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != database.RoleAdmin {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	query := r.URL.Query()
+	page, err := strconv.Atoi(query.Get("page"))
+	if err != nil || page < 1 {
+		page = 1 //the page is which chunk we want (defined by limit), so if we want the first chunk, we set page to 1)
+	}
+
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil || limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	var clients []database.Client
+	dbQuery := database.DB.Model(&database.Client{}).Order("id")
+	if err := dbQuery.Offset((page - 1) * limit).Limit(limit).Find(&clients).Error; err != nil {
+		http.Error(w, "Failed to fetch clients", http.StatusInternalServerError)
+		return
+	}
+
+	total := len(clients)
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"data": clients,
+		"meta": map[string]interface{}{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		},
+	})
+
+}
