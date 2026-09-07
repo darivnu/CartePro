@@ -42,6 +42,7 @@ If you ran `docker compose up --build` in the foreground, `Ctrl+C` stops the con
 
 ```sh
 docker compose down
+
 ```
 
 (add `-v` to also delete the `postgres_data` volume, i.e. wipe the database)
