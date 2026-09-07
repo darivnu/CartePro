@@ -126,8 +126,32 @@ type CancelTransactionRequest struct {
 	Reason string `json:"reason"`
 }
 
+func debitcancelTransaction(tx *gorm.DB, originalTx database.Transaction, admin *database.Admin, reason string) (database.Transaction, error) {
+
+	reversalTx := database.Transaction{
+		ReceiverUserID: originalTx.SenderUserID,
+		SenderUserID:   originalTx.ReceiverUserID,
+		QrTokenID:      nil,
+		Amount:         originalTx.Amount,
+		Type:           database.TransactionTypeReversal,
+		Comment:        &reason,
+	}
+
+	if err := tx.Create(&reversalTx).Error; err != nil {
+		return database.Transaction{}, err
+	}
+
+	if err := tx.Model(&database.Client{}).
+		Where("user_id = ?", originalTx.ReceiverUserID).
+		Update("balance", gorm.Expr("balance + ?", originalTx.Amount)).Error; err != nil {
+		return database.Transaction{}, err
+	}
+
+	return reversalTx, nil
+}
+
 func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
-	user, admin, err := server.GetAdminFromSession(r)
+	user, _, err := server.GetAdminFromSession(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -161,25 +185,15 @@ func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reversalTx := database.Transaction{
-		ClientID:       originalTx.ClientID,
-		PartnerID:      originalTx.PartnerID,
-		QrTokenID:      nil,
-		Amount:         originalTx.Amount,
-		Type:           database.TransactionTypeReversal,
-		Comment:        &req.Reason,
-		AdminID:        &admin.ID,
-		IdempotencyKey: nil,
-	}
+	var reversalTx database.Transaction
+	txErr := database.DB.Transaction(func(tx *gorm.DB) error {
+		var err error
+		reversalTx, err = debitcancelTransaction(tx, originalTx, nil, req.Reason)
+		return err
+	})
 
-	if err := database.DB.Create(&reversalTx).Error; err != nil {
-		http.Error(w, "Failed to create reversal transaction", http.StatusInternalServerError)
-		return
-	}
-
-	originalTx.Client.Balance += originalTx.Amount
-	if err := database.DB.Save(&originalTx.Client).Error; err != nil {
-		http.Error(w, "Failed to update client balance", http.StatusInternalServerError)
+	if txErr != nil {
+		http.Error(w, "Failed to cancel transaction", http.StatusInternalServerError)
 		return
 	}
 
