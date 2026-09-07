@@ -364,7 +364,7 @@ func HandleGetAdminClients(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var clients []database.Client
-	dbQuery := database.DB.Model(&database.Client{}).Order("id")
+	dbQuery := database.DB.Model(&database.Client{}).Preload("User").Order("id")
 	if err := dbQuery.Offset((page - 1) * limit).Limit(limit).Find(&clients).Error; err != nil {
 		http.Error(w, "Failed to fetch clients", http.StatusInternalServerError)
 		return
