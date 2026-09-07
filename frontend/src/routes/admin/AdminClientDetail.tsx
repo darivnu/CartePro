@@ -96,14 +96,14 @@ export function AdminClientDetail() {
             </Button>
           </div>
 
-          <h3 className="text-label-caps uppercase font-display text-ink-600">Top-ups</h3>
+          <h3 className="text-label-caps uppercase font-display text-ink-600">Transactions</h3>
 
-          {clientDetail.data.topups.length === 0 && (
-            <p className="text-body font-sans text-ink-600">No top-ups yet.</p>
+          {clientDetail.data.transactions.length === 0 && (
+            <p className="text-body font-sans text-ink-600">No transactions yet.</p>
           )}
-          {clientDetail.data.topups.length > 0 && (
+          {clientDetail.data.transactions.length > 0 && (
             <div className="flex flex-col gap-[2px]">
-              {clientDetail.data.topups.map((transaction) => (
+              {clientDetail.data.transactions.map((transaction) => (
                 <div
                   key={transaction.ID}
                   className="flex items-center justify-between rounded-row bg-surface-050 px-3 py-3 shadow-row-raised"
