@@ -253,6 +253,8 @@ func HandleGetMultiplePartners(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// this func looks incredibly similar to HandleGetClientOwnTransactions
+// TODO: we should refactor this to avoid code duplication, but for now we will keep it like this
 func HandleGetOwnTransactions(w http.ResponseWriter, r *http.Request) {
 	_, partner, err := server.GetPartnerFromSession(r)
 	if err != nil {
