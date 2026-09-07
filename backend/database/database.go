@@ -31,8 +31,8 @@ const (
 type User struct {
 	ID           uint   `gorm:"primaryKey"`
 	Email        string `gorm:"unique"`
-	PasswordHash string
-	Role         Role `gorm:"type:varchar(20);not null;default:'client';check:role IN ('admin','client','partner')"`
+	PasswordHash string `json:"-"` // Exclude from JSON responses
+	Role         Role   `gorm:"type:varchar(20);not null;default:'client';check:role IN ('admin','client','partner')"`
 }
 
 type Session struct {
@@ -104,19 +104,19 @@ const (
 )
 
 type Transaction struct {
-	ID             uint
-	SenderUserID   uint //debit: paying client's user id. topup: authorizing admin's user id (money created)
-	Sender         User `gorm:"foreignKey:SenderUserID"`
-	ReceiverUserID uint //party whose balance increases
-	Receiver       User `gorm:"foreignKey:ReceiverUserID"`
-	QrTokenID      *uint
-	QrToken        *QrToken
-	IdempotencyKey *string `gorm:"unique"` // enforced by the DB. NULL will not collide, so we can have multiple transactions with no idempotency key (e.g. topups). but if a key is provided, it must be unique.
-	OriginalTransactionID *uint `gorm:"unique"` // set on reversal transactions to the debit they reverse. unique constraint (same NULL-safe pattern as IdempotencyKey) blocks a debit from being reversed twice, even concurrently.
-	Amount         int64
-	CreatedAt      time.Time
-	Comment        *string
-	Type           TransactionType
+	ID                    uint
+	SenderUserID          uint //debit: paying client's user id. topup: authorizing admin's user id (money created)
+	Sender                User `gorm:"foreignKey:SenderUserID"`
+	ReceiverUserID        uint //party whose balance increases
+	Receiver              User `gorm:"foreignKey:ReceiverUserID"`
+	QrTokenID             *uint
+	QrToken               *QrToken
+	IdempotencyKey        *string `gorm:"unique"` // enforced by the DB. NULL will not collide, so we can have multiple transactions with no idempotency key (e.g. topups). but if a key is provided, it must be unique.
+	OriginalTransactionID *uint   `gorm:"unique"` // set on reversal transactions to the debit they reverse. unique constraint (same NULL-safe pattern as IdempotencyKey) blocks a debit from being reversed twice, even concurrently.
+	Amount                int64
+	CreatedAt             time.Time
+	Comment               *string
+	Type                  TransactionType
 }
 
 func InitDatabase() {
