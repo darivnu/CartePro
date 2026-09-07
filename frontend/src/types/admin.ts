@@ -63,7 +63,7 @@ OriginalTransactionID: number | null
 
 export interface AdminClientDetailResponse {
 client: AdminClient
-topups: AdminTransaction[]
+transactions: AdminTransaction[]
 }
 
 export interface CreateTopupRequest {
