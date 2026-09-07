@@ -121,7 +121,7 @@ type Transaction struct {
 	Receiver       User `gorm:"foreignKey:ReceiverUserID"`
 	QrTokenID      *uint
 	QrToken        *QrToken
-	IdempotencyKey *string
+	IdempotencyKey *string `gorm:"unique"` // enforced by the DB. NULL will not collide, so we can have multiple transactions with no idempotency key (e.g. topups). but if a key is provided, it must be unique.
 	Amount         int64
 	CreatedAt      time.Time
 	Comment        *string
