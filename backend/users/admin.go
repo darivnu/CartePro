@@ -12,6 +12,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -554,4 +555,69 @@ func HandleUpdatePartnerStatus(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"partner": partner,
 	})
+}
+
+func HandleGetAdminDashboard(w http.ResponseWriter, r *http.Request) {
+	_, _, err := server.GetAdminFromSession(r)
+
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var active_partners []database.Partner
+	if err := database.DB.Model(&database.Partner{}).Preload("User").Where("status = ?", database.StatusApproved).Find(&active_partners).Error; err != nil {
+		http.Error(w, "Failed to fetch active partners", http.StatusInternalServerError)
+		return
+	}
+
+	var total_clients int64
+	if err := database.DB.Model(&database.Client{}).Count(&total_clients).Error; err != nil {
+		http.Error(w, "Failed to fetch total clients count", http.StatusInternalServerError)
+		return
+	}
+
+	var list_of_regions []string
+	if err := database.DB.Model(&database.Partner{}).Distinct("Region").Pluck("Region", &list_of_regions).Error; err != nil {
+		http.Error(w, "Failed to fetch list of locations", http.StatusInternalServerError)
+		return
+	}
+	// sum debit transaction volume, optionally restricted to a from/to created_at range
+	query := r.URL.Query()
+	from := query.Get("from")
+	to := query.Get("to")
+
+	db := database.DB.Model(&database.Transaction{})
+	if from != "" {
+		fromTime, err := time.Parse(time.RFC3339, from)
+		if err != nil {
+			http.Error(w, "Invalid 'from' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at >= ?", fromTime)
+	}
+	if to != "" {
+		toTime, err := time.Parse(time.RFC3339, to)
+		if err != nil {
+			http.Error(w, "Invalid 'to' date format", http.StatusBadRequest)
+			return
+		}
+		db = db.Where("created_at <= ?", toTime)
+	}
+
+	var total_transaction_volume int64
+	if err := db.Where("type = ?", database.TransactionTypeDebit).Select("COALESCE(SUM(amount), 0)").Scan(&total_transaction_volume).Error; err != nil {
+		http.Error(w, "Failed to fetch total transaction volume", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"active_partners":          active_partners,
+		"total_transaction_volume": total_transaction_volume,
+		"total_clients":            total_clients,
+		"list_of_regions":          list_of_regions,
+	})
+
 }
