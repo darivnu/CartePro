@@ -88,11 +88,6 @@ func SeedTestPartners() {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatalf("failed to hash seed password: %v", err)
-	}
-
 	partners := []struct {
 		Email        string
 		BusinessName string
@@ -144,6 +139,10 @@ func SeedTestPartners() {
 	}
 
 	for _, p := range partners {
+		hash, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatalf("failed to hash seed password: %v", err)
+		}
 		user := User{
 			Email:        p.Email,
 			PasswordHash: string(hash),
