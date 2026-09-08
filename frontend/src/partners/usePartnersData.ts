@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getPartners, getPartner, collectPayment, getOwnTransactions, getOwnDashboard } from "../api/partners";
+import { getPartners, getPartner, collectPayment, getOwnTransactions, getOwnDashboard, registerPartner, getOwnPartner } from "../api/partners";
 import type { GetPartnersParams, GetOwnTransactionsParams, GetOwnDashboardParams } from "../api/partners";
+import { queryClient } from "../api/queryClient";
 
 export function usePartners(params: GetPartnersParams = {}) {
     const { search, category, page = 1, limit = 20 } = params;
@@ -39,5 +40,22 @@ export function useOwnDashboard(params: GetOwnDashboardParams = {}) {
     return useQuery({
         queryKey: ['own-dashboard', from, to],
         queryFn: () => getOwnDashboard({ from, to }),
+    });
+}
+
+export function useRegisterPartner() {
+    return useMutation({
+        mutationFn: registerPartner,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['me'] });
+        },
+    });
+}
+
+
+export function useOwnPartner() {
+    return useQuery({
+        queryKey: ['own-partner'],
+        queryFn: getOwnPartner,
     });
 }

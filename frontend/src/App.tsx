@@ -6,6 +6,8 @@ import { PartnerDetail } from './routes/client/PartnerDetail'
 import { PartnerHome } from './routes/partner/PartnerHome'
 import { PartnerDashboard } from './routes/partner/PartnerDashboard'
 import { LoginPage } from './routes/LoginPage'
+import { ClientRegisterPage } from './routes/ClientRegisterPage'
+import { PartnerRegisterPage } from './routes/partner/PartnerRegister'
 import { TermsOfUse } from './routes/TermsOfUse'
 import { AccessibilityStatement } from './routes/AccessibilityStatement'
 import { RootRedirect } from './routes/RootRedirect'
@@ -13,6 +15,7 @@ import { AdminLayout } from './routes/admin/AdminLayout'
 import { AdminPartners } from './routes/admin/AdminPartners'
 import { AdminClients } from './routes/admin/AdminClients'
 import { AdminClientDetail } from './routes/admin/AdminClientDetail'
+import { AdminDashboard } from './routes/admin/AdminDashboard'
 
 function App() {
   return (
@@ -69,11 +72,18 @@ function App() {
           <Route path="partners" element={<AdminPartners />} />
           <Route path="clients" element={<AdminClients />} />
           <Route path="clients/:id" element={<AdminClientDetail />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
         </Route>
       <Route path="/partners" element={<PartnerCatalog />} />
       <Route path="/partners/:id" element={<PartnerDetail />} />
       <Route path="/login"
       element={<LoginPage />}
+      />
+      <Route path="/register"
+      element={<ClientRegisterPage />}
+      />
+      <Route path="/partner/register"
+      element={<PartnerRegisterPage />}
       />
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/accessibility" element={<AccessibilityStatement />} />

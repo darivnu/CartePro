@@ -75,9 +75,14 @@ func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case txErr == nil:
+		response, err := toTransactionResponse(transaction)
+		if err != nil {
+			http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
+			return
+		}
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": response})
 	case errors.Is(txErr, errQrTokenUnavailable):
 		http.Error(w, "QR code not found, expired, or already used", http.StatusConflict)
 	case errors.Is(txErr, errInsufficientBalance):
@@ -90,9 +95,14 @@ func HandleQrCodeValidation(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
 			return
 		}
+		response, err := toTransactionResponse(existing)
+		if err != nil {
+			http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
+			return
+		}
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": existing})
+		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": response})
 	default:
 		http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
 	}
@@ -213,9 +223,15 @@ func HandleGetClientOwnTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	responses, err := toTransactionResponses(transactions)
+	if err != nil {
+		http.Error(w, "Failed to fetch transactions", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"data": transactions,
+		"data": responses,
 		"meta": map[string]interface{}{
 			"page":        page,
 			"limit":       limit,

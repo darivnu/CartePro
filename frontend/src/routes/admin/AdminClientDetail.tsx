@@ -13,6 +13,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import type { AdminTransaction } from '../../types/admin'
+import { cn } from '@/lib/utils'
 
 export function AdminClientDetail() {
   const { id } = useParams<{ id: string }>()
@@ -54,6 +55,12 @@ export function AdminClientDetail() {
       { onSuccess: closeCancelDialog },
     )
   }
+
+  const reversedTransactionIds = new Set(
+    (clientDetail.data?.transactions ?? [])
+      .map((transaction) => transaction.OriginalTransactionID)
+      .filter((id): id is number => id !== null),
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,13 +110,19 @@ export function AdminClientDetail() {
           )}
           {clientDetail.data.transactions.length > 0 && (
             <div className="flex flex-col gap-[2px]">
-              {clientDetail.data.transactions.map((transaction) => (
+              {clientDetail.data.transactions.map((transaction) => {
+                const isClientSender = transaction.SenderUserID === clientDetail.data.client.UserID
+                const counterpartyName = isClientSender ? transaction.ReceiverName : transaction.SenderName
+                return (
                 <div
                   key={transaction.ID}
                   className="flex items-center justify-between rounded-row bg-surface-050 px-3 py-3 shadow-row-raised"
                 >
                   <div className="flex flex-col gap-1">
-                    <p className="text-body-strong font-sans text-ink-900 uppercase">
+                    <p className="text-body-strong font-sans text-ink-900">
+                      {counterpartyName}
+                    </p>
+                    <p className="text-caption font-sans text-ink-600 uppercase">
                       {transaction.Type}
                     </p>
                     <p className="text-caption font-sans text-ink-600">
@@ -117,10 +130,18 @@ export function AdminClientDetail() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <p className="text-body-strong font-sans text-ink-900">
+                    <p
+                      className={cn(
+                        'text-body-strong font-sans',
+                        transaction.Type === 'debit' ? 'text-danger-600' : 'text-success-600',
+                      )}
+                    >
+                      {transaction.Type === 'debit' ? '-' : '+'}
                       {formatCents(transaction.Amount)}
                     </p>
-                    {transaction.OriginalTransactionID === null && transaction.Type === 'debit' && (
+                    {transaction.OriginalTransactionID === null &&
+                      transaction.Type === 'debit' &&
+                      !reversedTransactionIds.has(transaction.ID) && (
                       <Button
                         size="sm"
                         onClick={() => setCancellingTransaction(transaction)}
@@ -131,7 +152,8 @@ export function AdminClientDetail() {
                     )}
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </>

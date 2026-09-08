@@ -23,7 +23,7 @@ import (
 
 type PartnerRegistrationRequest struct {
 	BusinessName string `json:"business_name"`
-	Siret        string `json:"siret"`
+	Siret        int64  `json:"siret"`
 	Category     string `json:"category"`
 	Address      string `json:"address"`
 	Region       string `json:"region"`
@@ -89,6 +89,13 @@ func HandlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create partner", http.StatusInternalServerError)
 		return
 	}
+	session, err := server.CreateSession(user.ID)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
+	}
+
+	server.SetSessionCookie(w, session)
 
 	w.WriteHeader(http.StatusCreated)
 
@@ -136,7 +143,7 @@ func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
 	type PartnerResponse struct {
 		ID           uint   `json:"ID"`
 		BusinessName string `json:"BusinessName"`
-		Siret        string `json:"Siret"`
+		Siret        int64  `json:"Siret"`
 		Category     string `json:"Category"`
 		Address      string `json:"Address"`
 		Region       string `json:"Region"`
@@ -307,10 +314,16 @@ func HandleGetOwnTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	responses, err := toTransactionResponses(transactions)
+	if err != nil {
+		http.Error(w, "Failed to fetch transactions", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"data": transactions,
+		"data": responses,
 		"meta": map[string]interface{}{
 			"page":        page,
 			"limit":       limit,

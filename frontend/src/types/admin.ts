@@ -3,7 +3,7 @@ export type PartnerStatus = 'pending' | 'approved' | 'rejected' | string
 export interface AdminPartner {
 ID: number
 BusinessName: string
-Siret: string
+Siret: number
 Category: string
 Address: string
 Region: string
@@ -54,6 +54,8 @@ export interface AdminTransaction {
 ID: number
 SenderUserID: number
 ReceiverUserID: number
+SenderName: string
+ReceiverName: string
 Amount: number
 Comment: string | null
 Type: TransactionType
@@ -78,4 +80,11 @@ transaction: AdminTransaction
 
 export interface CancelTransactionResponse {
 transaction: AdminTransaction
+}
+
+export interface AdminDashboardResponse {
+active_partners: AdminPartner[]                                                                                                                                                        
+total_transaction_volume: number
+total_clients: number
+list_of_regions: string[]
 }

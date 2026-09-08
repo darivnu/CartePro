@@ -75,13 +75,13 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := createSession(user.ID)
+	session, err := CreateSession(user.ID)
 	if err != nil {
 		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		return
 	}
 
-	setSessionCookie(w, session)
+	SetSessionCookie(w, session)
 
 	// Send a successful login response
 	response := LoginResponse{

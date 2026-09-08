@@ -8,6 +8,7 @@ AdminClientDetailResponse,
 CreateTopupRequest,
 CreateTopupResponse,
 CancelTransactionResponse,
+AdminDashboardResponse,
 }
 from '../types/admin'
 
@@ -86,4 +87,20 @@ return apiFetch<CancelTransactionResponse>(`/admin/transactions/${id}/cancel`, {
     method: 'POST',
     body: { reason },
 })
+}
+
+export interface GetAdminDashboardParams {
+from?: string
+to?: string
+}
+
+export function getAdminDashboard(params: GetAdminDashboardParams = {}) {
+const { from, to } = params
+
+const query = new URLSearchParams()
+if (from) query.set('from', from)
+if (to) query.set('to', to)
+
+const queryString = query.toString()
+return apiFetch<AdminDashboardResponse>(`/admin/dashboard${queryString ? `?${queryString}` : ''}`)
 }
