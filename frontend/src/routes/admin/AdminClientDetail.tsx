@@ -13,6 +13,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import type { AdminTransaction } from '../../types/admin'
+import { cn } from '@/lib/utils'
 
 export function AdminClientDetail() {
   const { id } = useParams<{ id: string }>()
@@ -54,6 +55,12 @@ export function AdminClientDetail() {
       { onSuccess: closeCancelDialog },
     )
   }
+
+  const reversedTransactionIds = new Set(
+    (clientDetail.data?.transactions ?? [])
+      .map((transaction) => transaction.OriginalTransactionID)
+      .filter((id): id is number => id !== null),
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -117,10 +124,18 @@ export function AdminClientDetail() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <p className="text-body-strong font-sans text-ink-900">
+                    <p
+                      className={cn(
+                        'text-body-strong font-sans',
+                        transaction.Type === 'debit' ? 'text-danger-600' : 'text-success-600',
+                      )}
+                    >
+                      {transaction.Type === 'debit' ? '-' : '+'}
                       {formatCents(transaction.Amount)}
                     </p>
-                    {transaction.OriginalTransactionID === null && transaction.Type === 'debit' && (
+                    {transaction.OriginalTransactionID === null &&
+                      transaction.Type === 'debit' &&
+                      !reversedTransactionIds.has(transaction.ID) && (
                       <Button
                         size="sm"
                         onClick={() => setCancellingTransaction(transaction)}
