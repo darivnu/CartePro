@@ -3,7 +3,7 @@ export type PartnerStatus = 'pending' | 'approved' | 'rejected' | string
 export interface AdminPartner {
 ID: number
 BusinessName: string
-Siret: string
+Siret: number
 Category: string
 Address: string
 Region: string
