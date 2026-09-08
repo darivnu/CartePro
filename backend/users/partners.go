@@ -23,7 +23,7 @@ import (
 
 type PartnerRegistrationRequest struct {
 	BusinessName string `json:"business_name"`
-	Siret        string `json:"siret"`
+	Siret        int64  `json:"siret"`
 	Category     string `json:"category"`
 	Address      string `json:"address"`
 	Region       string `json:"region"`
@@ -136,7 +136,7 @@ func HandleGetSpecificPartner(w http.ResponseWriter, r *http.Request) {
 	type PartnerResponse struct {
 		ID           uint   `json:"ID"`
 		BusinessName string `json:"BusinessName"`
-		Siret        string `json:"Siret"`
+		Siret        int64  `json:"Siret"`
 		Category     string `json:"Category"`
 		Address      string `json:"Address"`
 		Region       string `json:"Region"`

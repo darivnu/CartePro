@@ -88,15 +88,10 @@ func SeedTestPartners() {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatalf("failed to hash seed password: %v", err)
-	}
-
 	partners := []struct {
 		Email        string
 		BusinessName string
-		Siret        string
+		Siret        int64
 		Category     string
 		Address      string
 		Region       string
@@ -104,7 +99,7 @@ func SeedTestPartners() {
 		{
 			Email:        "testpartner@cartepro.dev",
 			BusinessName: "Test Partner",
-			Siret:        "12345678901234",
+			Siret:        12345678901234,
 			Category:     "Test Category",
 			Address:      "123 Test St, Test City",
 			Region:       "Test Region",
@@ -112,7 +107,7 @@ func SeedTestPartners() {
 		{
 			Email:        "contact@poneydream78.fr",
 			BusinessName: "Poney Dream 78",
-			Siret:        "23456789012345",
+			Siret:        23456789012345,
 			Category:     "Pony club",
 			Address:      "Route des Écuries, Rambouillet",
 			Region:       "Île-de-France",
@@ -120,7 +115,7 @@ func SeedTestPartners() {
 		{
 			Email:        "contact@kostumparty.fr",
 			BusinessName: "KostumParty",
-			Siret:        "34567890123456",
+			Siret:        34567890123456,
 			Category:     "Costume shop",
 			Address:      "25 Rue de la Roquette, Paris 11e",
 			Region:       "Île-de-France",
@@ -128,7 +123,7 @@ func SeedTestPartners() {
 		{
 			Email:        "contact@glaces-correze.fr",
 			BusinessName: "Glaces Artisanales Corrèze",
-			Siret:        "45678901234567",
+			Siret:        45678901234567,
 			Category:     "Ice cream maker (online + click & collect)",
 			Address:      "Click & collect, Brive-la-Gaillarde",
 			Region:       "Nouvelle-Aquitaine",
@@ -136,7 +131,7 @@ func SeedTestPartners() {
 		{
 			Email:        "contact@chapelierfontaine.fr",
 			BusinessName: "Chapelier Fontaine",
-			Siret:        "56789012345678",
+			Siret:        56789012345678,
 			Category:     "Felt hats",
 			Address:      "8 Rue Saint-Rome, Toulouse",
 			Region:       "Occitanie",
@@ -144,6 +139,10 @@ func SeedTestPartners() {
 	}
 
 	for _, p := range partners {
+		hash, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatalf("failed to hash seed password: %v", err)
+		}
 		user := User{
 			Email:        p.Email,
 			PasswordHash: string(hash),

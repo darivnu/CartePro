@@ -64,8 +64,8 @@ type Partner struct {
 	ID           uint   `gorm:"primaryKey"`
 	BusinessName string `gorm:"unique"`
 	UserID       uint
-	User         User   `gorm:"foreignKey:UserID"`
-	Siret        string `gorm:"unique"`
+	User         User  `gorm:"foreignKey:UserID"`
+	Siret        int64 `gorm:"unique"`
 	Category     string
 	Address      string
 	Region       string
