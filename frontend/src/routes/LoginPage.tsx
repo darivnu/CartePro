@@ -93,6 +93,12 @@ export function LoginPage() {
             Create an account
           </Link>
         </div>
+        <div className="flex items-center gap-1.5 text-body-strong font-sans text-ink-900">
+          Own a business?
+          <Link to="/partner/register" className="underline">
+            Register as a partner
+          </Link>
+        </div>
         <div className="flex items-center gap-4">
           <Link to="/terms" className="text-caption font-sans text-ink-600">
             Terms of Use

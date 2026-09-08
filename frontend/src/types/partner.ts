@@ -83,3 +83,13 @@ export interface PartnerDashboardResponse {
   transaction_count: number
   by_day: PartnerDashboardDayBucket[]
 }
+
+export interface PartnerRegistrationPayload {
+  business_name: string
+  siret: number
+  category: string
+  address: string
+  region: string
+  contact_email: string
+  password: string
+}

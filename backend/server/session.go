@@ -20,17 +20,17 @@ import (
 const sessionCookieName = "session_token"
 const sessionDuration = 7 * 24 * time.Hour
 
-//cookieSecure is false by default so local docker-compose (plain HTTP) keeps working;
-//set COOKIE_SECURE=true once the API is served over HTTPS (e.g. on Vercel).
+// cookieSecure is false by default so local docker-compose (plain HTTP) keeps working;
+// set COOKIE_SECURE=true once the API is served over HTTPS (e.g. on Vercel).
 func cookieSecure() bool {
 	return os.Getenv("COOKIE_SECURE") == "true"
 }
 
-//sessionSameSite mirrors cookieSecure: locally, frontend and backend share the
-//"localhost" site (just different ports) so Lax works. On Vercel, frontend and
-//backend live on different domains, and browsers only send SameSite=Lax cookies
-//on cross-site fetch for top-level navigations, not XHR/fetch - so cross-site
-//credentialed requests need None, which in turn requires Secure.
+// sessionSameSite mirrors cookieSecure: locally, frontend and backend share the
+// "localhost" site (just different ports) so Lax works. On Vercel, frontend and
+// backend live on different domains, and browsers only send SameSite=Lax cookies
+// on cross-site fetch for top-level navigations, not XHR/fetch - so cross-site
+// credentialed requests need None, which in turn requires Secure.
 func sessionSameSite() http.SameSite {
 	if cookieSecure() {
 		return http.SameSiteNoneMode
@@ -46,7 +46,7 @@ func generateSessionToken() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-func createSession(userID uint) (*database.Session, error) {
+func CreateSession(userID uint) (*database.Session, error) {
 	token, err := generateSessionToken()
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func createSession(userID uint) (*database.Session, error) {
 	return session, nil
 }
 
-func setSessionCookie(w http.ResponseWriter, session *database.Session) {
+func SetSessionCookie(w http.ResponseWriter, session *database.Session) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookieName,
 		Value:    session.Token,
