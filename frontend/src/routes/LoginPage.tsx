@@ -84,6 +84,9 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
+        <Link to="/partners" className="text-body-strong font-sans text-ink-900 underline">
+          Browse partners
+        </Link>
         <div className="flex items-center gap-4">
           <Link to="/terms" className="text-caption font-sans text-ink-600">
             Terms of Use

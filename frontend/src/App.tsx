@@ -61,6 +61,8 @@ function App() {
           <Route path="clients" element={<AdminClients />} />
           <Route path="clients/:id" element={<AdminClientDetail />} />
         </Route>
+      <Route path="/partners" element={<PartnerCatalog />} />
+      <Route path="/partners/:id" element={<PartnerDetail />} />
       <Route path="/login"
       element={<LoginPage />}
       />

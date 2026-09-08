@@ -1,10 +1,14 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { usePartner } from '../../partners/usePartnersData'
 import { Wordmark } from '@/components/Wordmark'
 
 export function PartnerDetail() {
   const { id } = useParams()
   const partner = usePartner(id ?? '')
+  const location = useLocation()
+  const partnersBasePath = location.pathname.startsWith('/client')
+    ? '/client/partners'
+    : '/partners'
 
   return (
     <div className="min-h-screen bg-surface-200 p-4">
@@ -12,7 +16,7 @@ export function PartnerDetail() {
         <div className="flex items-center justify-between">
           <Wordmark />
           <Link
-            to="/client/partners"
+            to={partnersBasePath}
             className="text-label-caps uppercase font-display text-ink-600"
           >
             Back

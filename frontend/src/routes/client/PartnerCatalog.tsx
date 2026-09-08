@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { usePartners } from '../../partners/usePartnersData'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,9 @@ export function PartnerCatalog() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
   const [page, setPage] = useState(1)
+  const location = useLocation()
+  const isPublic = !location.pathname.startsWith('/client')
+  const partnersBasePath = isPublic ? '/partners' : '/client/partners'
 
   const partners = usePartners({ search, category, page })
   const totalPages = partners.data
@@ -31,7 +34,7 @@ export function PartnerCatalog() {
         <div className="flex items-center justify-between">
           <Wordmark />
           <Link
-            to="/client"
+            to={isPublic ? '/' : '/client'}
             className="text-label-caps uppercase font-display text-ink-600"
           >
             Back
@@ -69,7 +72,7 @@ export function PartnerCatalog() {
             {partners.data.data.map((partner) => (
               <Link
                 key={partner.ID}
-                to={`/client/partners/${partner.ID}`}
+                to={`${partnersBasePath}/${partner.ID}`}
                 className="flex items-center justify-between rounded-row bg-surface-050 px-3 py-3 shadow-row-raised"
               >
                 <div className="flex flex-col gap-1">
