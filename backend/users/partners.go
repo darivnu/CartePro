@@ -89,6 +89,13 @@ func HandlePartnerRegistration(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create partner", http.StatusInternalServerError)
 		return
 	}
+	session, err := server.CreateSession(user.ID)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
+	}
+
+	server.SetSessionCookie(w, session)
 
 	w.WriteHeader(http.StatusCreated)
 
