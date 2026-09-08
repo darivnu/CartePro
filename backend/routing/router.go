@@ -53,5 +53,10 @@ func NewRouter() *http.ServeMux {
 
 	//external
 	mux.HandleFunc("GET /api/v1/employees/{id}/balance", users.HandleExternalIntegrationBalanceClientGetter)
+
+	//docs
+	mux.HandleFunc("GET /docs/doc.json", ServeSwaggerSpec)
+	mux.HandleFunc("GET /docs/", ServeSwaggerUI)
+
 	return mux
 }
