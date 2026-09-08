@@ -146,9 +146,17 @@ func debitcancelTransaction(tx *gorm.DB, originalTx database.Transaction, admin 
 		return database.Transaction{}, err
 	}
 
+	// credit the client who originally paid
 	if err := tx.Model(&database.Client{}).
-		Where("user_id = ?", originalTx.ReceiverUserID).
+		Where("user_id = ?", originalTx.SenderUserID).
 		Update("balance", gorm.Expr("balance + ?", originalTx.Amount)).Error; err != nil {
+		return database.Transaction{}, err
+	}
+
+	// debit the partner who originally received
+	if err := tx.Model(&database.Partner{}).
+		Where("user_id = ?", originalTx.ReceiverUserID).
+		Update("balance", gorm.Expr("balance - ?", originalTx.Amount)).Error; err != nil {
 		return database.Transaction{}, err
 	}
 
