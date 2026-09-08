@@ -93,3 +93,23 @@ export interface PartnerRegistrationPayload {
   contact_email: string
   password: string
 }
+
+export type PartnerStatus = 'pending' | 'approved' | 'rejected'
+
+  export interface OwnPartner {
+    ID: number
+    BusinessName: string
+    Siret: number
+    Category: string
+    Address: string
+    Region: string
+    Balance: number
+    Status: PartnerStatus
+    RejectReason: string | null
+    MinisterPick: boolean
+    CreatedAt: string
+  }
+
+  export interface OwnPartnerResponse {
+    partner: OwnPartner
+  }
