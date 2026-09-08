@@ -89,3 +89,15 @@ func HandleClientBalance(w http.ResponseWriter, r *http.Request) {
 		"updated_at": time.Now().UTC().Format(time.RFC3339), //return the current time in UTC as the updated_at field
 	})
 }
+
+func getClientByID(clientID uint64) (*database.User, *database.Client, error) {
+	var client database.Client
+	var user database.User
+	if err := database.DB.Preload("User").First(&client, clientID).Error; err != nil {
+		return nil, nil, err
+	}
+	if err := database.DB.First(&user, client.UserID).Error; err != nil {
+		return nil, nil, err
+	}
+	return &user, &client, nil
+}
