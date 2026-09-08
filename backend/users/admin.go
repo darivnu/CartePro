@@ -566,7 +566,7 @@ func HandleGetAdminDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var active_partners []database.Partner
-	if err := database.DB.Model(&database.Partner{}).Where("status = ?", database.StatusApproved).Find(&active_partners).Error; err != nil {
+	if err := database.DB.Model(&database.Partner{}).Preload("User").Where("status = ?", database.StatusApproved).Find(&active_partners).Error; err != nil {
 		http.Error(w, "Failed to fetch active partners", http.StatusInternalServerError)
 		return
 	}
@@ -582,12 +582,12 @@ func HandleGetAdminDashboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch list of locations", http.StatusInternalServerError)
 		return
 	}
-	//get from to transaction volume
+	// sum debit transaction volume, optionally restricted to a from/to created_at range
 	query := r.URL.Query()
 	from := query.Get("from")
 	to := query.Get("to")
 
-	db := database.DB.Model(&database.Transaction{}).Order("created_at DESC")
+	db := database.DB.Model(&database.Transaction{})
 	if from != "" {
 		fromTime, err := time.Parse(time.RFC3339, from)
 		if err != nil {
@@ -606,7 +606,7 @@ func HandleGetAdminDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var total_transaction_volume int64
-	if err := db.Where("type = ?", database.TransactionTypeDebit).Select("SUM(amount)").Scan(&total_transaction_volume).Error; err != nil {
+	if err := db.Where("type = ?", database.TransactionTypeDebit).Select("COALESCE(SUM(amount), 0)").Scan(&total_transaction_volume).Error; err != nil {
 		http.Error(w, "Failed to fetch total transaction volume", http.StatusInternalServerError)
 		return
 	}
