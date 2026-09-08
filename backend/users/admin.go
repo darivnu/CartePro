@@ -214,10 +214,16 @@ func HandleCancelTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	response, err := toTransactionResponse(reversalTx)
+	if err != nil {
+		http.Error(w, "Failed to cancel transaction", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"transaction": reversalTx,
+		"transaction": response,
 	})
 }
 
@@ -251,9 +257,14 @@ func HandleAdminTopups(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case txErr == nil:
+		response, err := toTransactionResponse(transaction)
+		if err != nil {
+			http.Error(w, "Failed to process transaction", http.StatusInternalServerError)
+			return
+		}
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": transaction})
+		json.NewEncoder(w).Encode(map[string]interface{}{"transaction": response})
 	case errors.Is(txErr, gorm.ErrRecordNotFound):
 		http.Error(w, "Client not found", http.StatusNotFound)
 	default:
@@ -423,11 +434,17 @@ func HandleGetAdminClientDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	responses, err := toTransactionResponses(transactions)
+	if err != nil {
+		http.Error(w, "Failed to fetch top-ups", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"client":       client,
-		"transactions": transactions,
+		"transactions": responses,
 	})
 }
 
