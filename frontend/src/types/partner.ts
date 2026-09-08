@@ -41,3 +41,42 @@ export interface ValidateQrResponse {
   transaction: CollectedTransaction
 }
 
+export type TransactionType = 'debit' | 'topup' | 'reversal' | string
+
+export interface PartnerTransaction {
+  ID: number
+  SenderUserID: number
+  ReceiverUserID: number
+  Amount: number
+  CreatedAt: string
+  Comment: string | null
+  Type: TransactionType
+  Cancelled: boolean
+  OriginalTransactionID: number | null
+}
+
+export interface PartnerTransactionsMeta {
+  page: number
+  limit: number
+  total: number
+  total_pages: number
+  from: string
+  to: string
+}
+
+export interface PartnerTransactionsResponse {
+  data: PartnerTransaction[]
+  meta: PartnerTransactionsMeta
+}
+
+export interface PartnerDashboardDayBucket {
+  date: string
+  total_received: number
+  transaction_count: number
+}
+
+export interface PartnerDashboardResponse {
+  total_received: number
+  transaction_count: number
+  by_day: PartnerDashboardDayBucket[]
+}
