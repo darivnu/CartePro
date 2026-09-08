@@ -4,6 +4,7 @@ import { ClientHome } from './routes/client/ClientHome'
 import { PartnerCatalog } from './routes/client/PartnerCatalog'
 import { PartnerDetail } from './routes/client/PartnerDetail'
 import { PartnerHome } from './routes/partner/PartnerHome'
+import { PartnerDashboard } from './routes/partner/PartnerDashboard'
 import { LoginPage } from './routes/LoginPage'
 import { TermsOfUse } from './routes/TermsOfUse'
 import { AccessibilityStatement } from './routes/AccessibilityStatement'
@@ -45,6 +46,14 @@ function App() {
         element={
           <RoleGuard role="partner">
             <PartnerHome />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/partner/dashboard"
+        element={
+          <RoleGuard role="partner">
+            <PartnerDashboard />
           </RoleGuard>
         }
       />

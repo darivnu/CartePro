@@ -1,5 +1,12 @@
 import { apiFetch } from './client';
-import type { PartnersResponse, PartnerDetailResponse, ValidateQrPayload, ValidateQrResponse } from '../types/partner';
+import type {
+  PartnersResponse,
+  PartnerDetailResponse,
+  ValidateQrPayload,
+  ValidateQrResponse,
+  PartnerTransactionsResponse,
+  PartnerDashboardResponse,
+} from '../types/partner';
 
 export interface GetPartnersParams {
   search?: string;
@@ -29,4 +36,38 @@ export function collectPayment(payload: ValidateQrPayload) {
     method: 'POST',
     body: payload,
   });
+}
+
+export interface GetOwnTransactionsParams {
+  page?: number;
+  limit?: number;
+  from?: string;
+  to?: string;
+}
+
+export function getOwnTransactions(params: GetOwnTransactionsParams = {}) {
+  const { page = 1, limit = 20, from, to } = params;
+
+  const query = new URLSearchParams();
+  query.set('page', String(page));
+  query.set('limit', String(limit));
+  if (from) query.set('from', from);
+  if (to) query.set('to', to);
+
+  return apiFetch<PartnerTransactionsResponse>(`/partners/me/transactions?${query.toString()}`);
+}
+
+export interface GetOwnDashboardParams {
+  from?: string;
+  to?: string;
+}
+
+export function getOwnDashboard(params: GetOwnDashboardParams = {}) {
+  const { from, to } = params;
+
+  const query = new URLSearchParams();
+  if (from) query.set('from', from);
+  if (to) query.set('to', to);
+
+  return apiFetch<PartnerDashboardResponse>(`/partners/me/dashboard?${query.toString()}`);
 }

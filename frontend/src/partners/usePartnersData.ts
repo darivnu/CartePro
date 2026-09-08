@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getPartners, getPartner, collectPayment } from "../api/partners";
-import type { GetPartnersParams } from "../api/partners";
+import { getPartners, getPartner, collectPayment, getOwnTransactions, getOwnDashboard } from "../api/partners";
+import type { GetPartnersParams, GetOwnTransactionsParams, GetOwnDashboardParams } from "../api/partners";
 
 export function usePartners(params: GetPartnersParams = {}) {
     const { search, category, page = 1, limit = 20 } = params;
@@ -24,3 +24,20 @@ export function useCollectPayment() {
     });
 }
 
+export function useOwnTransactions(params: GetOwnTransactionsParams = {}) {
+    const { page = 1, limit = 20, from, to } = params;
+
+    return useQuery({
+        queryKey: ['own-transactions', page, limit, from, to],
+        queryFn: () => getOwnTransactions({ page, limit, from, to }),
+    });
+}
+
+export function useOwnDashboard(params: GetOwnDashboardParams = {}) {
+    const { from, to } = params;
+
+    return useQuery({
+        queryKey: ['own-dashboard', from, to],
+        queryFn: () => getOwnDashboard({ from, to }),
+    });
+}

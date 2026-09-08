@@ -1,13 +1,15 @@
 import { useCallback, useState } from 'react'
-import { useLogout } from '../../auth/useAuth'
+import { Link } from 'react-router-dom'
+import { useAuth, useLogout } from '../../auth/useAuth'
 import { Wordmark } from '@/components/Wordmark'
 import { SimulationNotice } from '@/components/SimulationNotice'
 import { QrScanner } from '@/components/QrScanner'
-import { useCollectPayment } from '../../partners/usePartnersData'
+import { useCollectPayment, useOwnTransactions } from '../../partners/usePartnersData'
 import { formatCents, parseEurosToCents } from '../../lib/money'
 import { ApiError } from '../../api/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import {
   Dialog,
   DialogContent,
@@ -15,6 +17,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+
+const TRANSACTION_TYPE_LABELS: Record<string, string> = {
+  debit: 'Payment',
+  topup: 'Top-up',
+  reversal: 'Reversal',
+}
+
+function toRfc3339Start(date: string) {
+  return date ? `${date}T00:00:00Z` : undefined
+}
+
+function toRfc3339End(date: string) {
+  return date ? `${date}T23:59:59Z` : undefined
+}
+
 
 function getCollectErrorMessage(error: Error | null): string {
   if (error instanceof ApiError) {
@@ -47,6 +64,16 @@ export function PartnerHome() {
   const [cents, setCents] = useState<number | null>(null)
   const [idempotencyKey, setIdempotencyKey] = useState<string | null>(null)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const { user } = useAuth()
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+  const [page, setPage] = useState(1)
+
+  const transactions = useOwnTransactions({
+    page,
+    from: toRfc3339Start(fromDate),
+    to: toRfc3339End(toDate),
+  })
 
   function handleDialogOpenChange(open: boolean) {
     setDialogOpen(open)
@@ -106,6 +133,11 @@ export function PartnerHome() {
     collectPayment.reset()
   }
 
+  if (!user) {
+    return null
+  }
+
+
   return (
     <div className="min-h-screen bg-surface-200 p-4">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
@@ -136,6 +168,112 @@ export function PartnerHome() {
         >
           Scan client QR
         </Button>
+
+        <div className="flex items-center justify-between">
+          <p className="text-h2 font-display text-graphite-900">Transaction history</p>
+          <Link
+            to="/partner/dashboard"
+            className="text-label-caps uppercase font-display text-brand-blue"
+          >
+            Dashboard
+          </Link>
+        </div>
+
+        <div className="flex gap-2">
+          <Input
+            type="date"
+            value={fromDate}
+            onChange={(e) => {
+              setFromDate(e.target.value)
+              setPage(1)
+            }}
+            aria-label="From date"
+          />
+          <Input
+            type="date"
+            value={toDate}
+            onChange={(e) => {
+              setToDate(e.target.value)
+              setPage(1)
+            }}
+            aria-label="To date"
+          />
+        </div>
+
+        {transactions.isLoading && (
+          <p className="text-body font-sans text-ink-600">Loading…</p>
+        )}
+
+        {transactions.isError && (
+          <p className="text-body font-sans text-danger-600">{transactions.error.message}</p>
+        )}
+
+        {transactions.isSuccess && transactions.data.data.length === 0 && (
+          <p className="text-body font-sans text-ink-600">No transactions found.</p>
+        )}
+
+        {transactions.isSuccess && transactions.data.data.length > 0 && (
+          <div className="flex flex-col gap-[2px]">
+            {transactions.data.data.map((tx) => {
+              const isReceived = tx.ReceiverUserID === Number(user.id)
+              return (
+                <div
+                  key={tx.ID}
+                  className="flex items-center justify-between rounded-row bg-surface-050 px-3 py-3 shadow-row-raised"
+                >
+                  <div className="flex flex-col gap-1">
+                    <p className="text-body-strong font-sans text-ink-900">
+                      {TRANSACTION_TYPE_LABELS[tx.Type] ?? tx.Type}
+                    </p>
+                    <p className="text-caption font-sans text-ink-600">
+                      {new Date(tx.CreatedAt).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p
+                      className={cn(
+                        'text-body-strong font-sans',
+                        isReceived ? 'text-success-600' : 'text-danger-600',
+                      )}
+                    >
+                      {isReceived ? '+' : '-'}
+                      {formatCents(tx.Amount)}
+                    </p>
+                    {tx.Cancelled && (
+                      <p className="text-caption uppercase font-display text-danger-600">
+                        Reversed
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {transactions.isSuccess && (
+          <div className="flex items-center justify-between">
+            <Button
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((c) => c - 1)}
+              className="rounded-panel bg-surface-300 text-button uppercase font-display text-graphite-900 shadow-key-secondary hover:bg-surface-300"
+            >
+              Prev
+            </Button>
+            <p className="text-caption font-sans text-ink-600">
+              Page {page} of {transactions.data.meta.total_pages}
+            </p>
+            <Button
+              size="sm"
+              disabled={page >= transactions.data.meta.total_pages}
+              onClick={() => setPage((c) => c + 1)}
+              className="rounded-panel bg-surface-300 text-button uppercase font-display text-graphite-900 shadow-key-secondary hover:bg-surface-300"
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
