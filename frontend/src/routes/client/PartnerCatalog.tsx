@@ -82,6 +82,11 @@ export function PartnerCatalog() {
                   <p className="text-caption font-sans text-ink-600">
                     {partner.Category} · {partner.Region}
                   </p>
+                  {partner.MinisterPick && (
+                    <p className="text-caption uppercase font-display text-gold-500">
+                      ⭐ Minister Pick
+                    </p>
+                  )}
                 </div>
               </Link>
             ))}
