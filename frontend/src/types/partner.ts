@@ -4,6 +4,7 @@ export interface Partner {
   Category: string
   Region: string
   Address: string
+  MinisterPick: boolean
 }
 
 export interface PartnersMeta {

@@ -33,9 +33,16 @@ export function PartnerDetail() {
         )}
         {partner.isSuccess && (
           <div className="flex flex-col gap-6">
-            <h1 className="text-h1 font-display text-ink-900">
-              {partner.data.partner.BusinessName}
-            </h1>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-h1 font-display text-ink-900">
+                {partner.data.partner.BusinessName}
+              </h1>
+              {partner.data.partner.MinisterPick && (
+                <p className="text-caption uppercase font-display text-gold-500">
+                  ⭐ Minister Pick
+                </p>
+              )}
+            </div>
 
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
