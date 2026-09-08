@@ -560,15 +560,14 @@ func HandleUpdatePartnerStatus(w http.ResponseWriter, r *http.Request) {
 func HandleGetAdminDashboard(w http.ResponseWriter, r *http.Request) {
 	_, _, err := server.GetAdminFromSession(r)
 
-
-
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	var active_partners int64
-	if err := database.DB.Model(&database.Partner{}).Where("status = ?", database.StatusApproved).Count(&active_partners).Error; err != nil {
-		http.Error(w, "Failed to fetch active partners count", http.StatusInternalServerError)
+
+	var active_partners []database.Partner
+	if err := database.DB.Model(&database.Partner{}).Where("status = ?", database.StatusApproved).Find(&active_partners).Error; err != nil {
+		http.Error(w, "Failed to fetch active partners", http.StatusInternalServerError)
 		return
 	}
 
