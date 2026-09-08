@@ -110,13 +110,19 @@ export function AdminClientDetail() {
           )}
           {clientDetail.data.transactions.length > 0 && (
             <div className="flex flex-col gap-[2px]">
-              {clientDetail.data.transactions.map((transaction) => (
+              {clientDetail.data.transactions.map((transaction) => {
+                const isClientSender = transaction.SenderUserID === clientDetail.data.client.UserID
+                const counterpartyName = isClientSender ? transaction.ReceiverName : transaction.SenderName
+                return (
                 <div
                   key={transaction.ID}
                   className="flex items-center justify-between rounded-row bg-surface-050 px-3 py-3 shadow-row-raised"
                 >
                   <div className="flex flex-col gap-1">
-                    <p className="text-body-strong font-sans text-ink-900 uppercase">
+                    <p className="text-body-strong font-sans text-ink-900">
+                      {counterpartyName}
+                    </p>
+                    <p className="text-caption font-sans text-ink-600 uppercase">
                       {transaction.Type}
                     </p>
                     <p className="text-caption font-sans text-ink-600">
@@ -146,7 +152,8 @@ export function AdminClientDetail() {
                     )}
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </>

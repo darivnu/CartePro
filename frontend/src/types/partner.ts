@@ -48,6 +48,8 @@ export interface PartnerTransaction {
   ID: number
   SenderUserID: number
   ReceiverUserID: number
+  SenderName: string
+  ReceiverName: string
   Amount: number
   CreatedAt: string
   Comment: string | null

@@ -7,7 +7,6 @@ export interface Balance {
 export type TransactionType = 'debit' | 'topup'
 
 export interface TransactionPartner {
-    id: number
     business_name: string
 }
 
