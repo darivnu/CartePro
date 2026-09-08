@@ -109,7 +109,7 @@ func getPartnerByUserID(userID uint) (*database.User, *database.Partner, error) 
 func getPartnerByID(partnerID uint) (*database.User, *database.Partner, error) {
 	var partner database.Partner
 	var user database.User
-	if err := database.DB.First(&partner, partnerID).Error; err != nil {
+	if err := database.DB.Preload("User").First(&partner, partnerID).Error; err != nil {
 		return nil, nil, err
 	}
 	if err := database.DB.First(&user, partner.UserID).Error; err != nil {
