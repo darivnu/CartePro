@@ -54,6 +54,8 @@ export interface AdminTransaction {
 ID: number
 SenderUserID: number
 ReceiverUserID: number
+SenderName: string
+ReceiverName: string
 Amount: number
 Comment: string | null
 Type: TransactionType

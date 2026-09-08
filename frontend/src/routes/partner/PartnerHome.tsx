@@ -216,6 +216,7 @@ export function PartnerHome() {
           <div className="flex flex-col gap-[2px]">
             {transactions.data.data.map((tx) => {
               const isReceived = tx.ReceiverUserID === Number(user.id)
+              const clientName = isReceived ? tx.SenderName : tx.ReceiverName
               return (
                 <div
                   key={tx.ID}
@@ -223,10 +224,10 @@ export function PartnerHome() {
                 >
                   <div className="flex flex-col gap-1">
                     <p className="text-body-strong font-sans text-ink-900">
-                      {TRANSACTION_TYPE_LABELS[tx.Type] ?? tx.Type}
+                      {clientName}
                     </p>
                     <p className="text-caption font-sans text-ink-600">
-                      {new Date(tx.CreatedAt).toLocaleDateString('fr-FR')}
+                      {TRANSACTION_TYPE_LABELS[tx.Type] ?? tx.Type} · {new Date(tx.CreatedAt).toLocaleDateString('fr-FR')}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
