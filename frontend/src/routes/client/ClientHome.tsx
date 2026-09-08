@@ -63,7 +63,7 @@ export function ClientHome() {
   const secondsLeft = useCountdown(qrCode.data?.expires_at)
   const isExpired = qrCode.isSuccess && secondsLeft <= 0
   const balance = useBalance({
-    refetchInterval: qrOpen && qrCode.isSuccess && !isExpired ? 2000 : false,
+    refetchInterval: qrOpen && qrCode.isSuccess && !isExpired ? 2000 : 10000,
   })
 
   useEffect(() => {
