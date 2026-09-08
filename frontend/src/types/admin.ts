@@ -79,3 +79,10 @@ transaction: AdminTransaction
 export interface CancelTransactionResponse {
 transaction: AdminTransaction
 }
+
+export interface AdminDashboardResponse {
+active_partners: AdminPartner[]                                                                                                                                                        
+total_transaction_volume: number
+total_clients: number
+list_of_regions: string[]
+}

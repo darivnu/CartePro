@@ -13,6 +13,7 @@ import { AdminLayout } from './routes/admin/AdminLayout'
 import { AdminPartners } from './routes/admin/AdminPartners'
 import { AdminClients } from './routes/admin/AdminClients'
 import { AdminClientDetail } from './routes/admin/AdminClientDetail'
+import { AdminDashboard } from './routes/admin/AdminDashboard'
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
           <Route path="partners" element={<AdminPartners />} />
           <Route path="clients" element={<AdminClients />} />
           <Route path="clients/:id" element={<AdminClientDetail />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
         </Route>
       <Route path="/partners" element={<PartnerCatalog />} />
       <Route path="/partners/:id" element={<PartnerDetail />} />
