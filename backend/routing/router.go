@@ -49,5 +49,8 @@ func NewRouter() *http.ServeMux {
 	mux.HandleFunc("PATCH /admin/partners/{id}/minister-pick", users.HandleMinisterPick)
 	mux.HandleFunc("POST /admin/partners/{id}/reject", users.HandleAdminRejectPartner)
 	mux.HandleFunc("PATCH /admin/partners/{id}/status", users.HandleUpdatePartnerStatus)
+
+	//external
+	mux.HandleFunc("GET /external/clients/{id}/balance", users.HandleExternalIntegrationBalanceClientGetter)
 	return mux
 }
