@@ -17,3 +17,10 @@ export function logout() {
 export function getCurrentUser() {
     return apiFetch<User>('/auth/me')
 }
+
+export function registerClient(data: { email: string; password: string; name: string }) {
+    return apiFetch<{ client: { id: number } }>('/clients/register', {
+      method: 'POST',
+      body: data,
+    })
+  }

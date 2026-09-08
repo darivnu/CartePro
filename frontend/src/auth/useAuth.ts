@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getCurrentUser, login, logout } from '../api/auth';
+import { getCurrentUser, login, logout, registerClient } from '../api/auth';
 import { queryClient } from '../api/queryClient';
 
 export function useAuth() {
@@ -36,5 +36,11 @@ export function useLogout() {
         onSuccess: () => {
             queryClient.setQueryData(['me'], null)
         },
+    })
+}
+
+export function useRegisterClient() {
+    return useMutation({
+        mutationFn: ({ email, password, name }: { email: string; password: string; name: string }) => registerClient({ email, password, name }),
     })
 }
