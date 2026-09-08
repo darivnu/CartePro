@@ -27,7 +27,7 @@ approved: 'text-success-600',
 rejected: 'text-danger-600',
 }
 
-const STATUS_OPTIONS: PartnerStatus[] = ['pending', 'approved', 'rejected', 'suspended']
+const STATUS_OPTIONS: PartnerStatus[] = ['pending', 'approved', 'rejected']
 
 export function AdminPartners() {
 const [status, setStatus] = useState<PartnerStatus>('pending')
