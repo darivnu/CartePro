@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getPartners, getPartner, collectPayment, getOwnTransactions, getOwnDashboard, registerPartner } from "../api/partners";
+import { getPartners, getPartner, collectPayment, getOwnTransactions, getOwnDashboard, registerPartner, getOwnPartner } from "../api/partners";
 import type { GetPartnersParams, GetOwnTransactionsParams, GetOwnDashboardParams } from "../api/partners";
 import { queryClient } from "../api/queryClient";
 
@@ -49,5 +49,13 @@ export function useRegisterPartner() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['me'] });
         },
+    });
+}
+
+
+export function useOwnPartner() {
+    return useQuery({
+        queryKey: ['own-partner'],
+        queryFn: getOwnPartner,
     });
 }

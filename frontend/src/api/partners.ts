@@ -7,6 +7,7 @@ import type {
   PartnerTransactionsResponse,
   PartnerDashboardResponse,
   PartnerRegistrationPayload,
+  OwnPartnerResponse,
 } from '../types/partner';
 
 export interface GetPartnersParams {
@@ -75,4 +76,8 @@ export function getOwnDashboard(params: GetOwnDashboardParams = {}) {
 
 export function registerPartner(payload: PartnerRegistrationPayload) {
   return apiFetch<void>('/partners/register', { method: 'POST', body: payload })
+}
+
+export function getOwnPartner() {
+  return apiFetch<OwnPartnerResponse>('/partners/me');
 }
