@@ -82,7 +82,7 @@ func HandleQrCodeGeneration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiresAt := time.Now().Add(30 * time.Minute) // QR code expires in 30 minutes
+	expiresAt := time.Now().Add(5 * time.Minute) // QR code expires in 5 minutes
 	qrPayload := signQrPayload(hash, expiresAt)
 
 	qrToken := database.QrToken{
