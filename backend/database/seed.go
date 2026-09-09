@@ -98,14 +98,6 @@ func SeedTestPartners() {
 	}{
 		{
 			Email:        "testpartner@cartepro.dev",
-			BusinessName: "Test Partner",
-			Siret:        12345678901234,
-			Category:     "Test Category",
-			Address:      "123 Test St, Test City",
-			Region:       "Test Region",
-		},
-		{
-			Email:        "contact@poneydream78.fr",
 			BusinessName: "Poney Dream 78",
 			Siret:        23456789012345,
 			Category:     "Pony club",
