@@ -469,8 +469,8 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "No Content \u2013 partner created and session cookie set"
+          "201": {
+            "description": "Created \u2013 partner created and session cookie set (no response body)"
           },
           "409": {
             "description": "Email or Siret/Business Name already exists"
@@ -923,65 +923,6 @@
           },
           "404": {
             "description": "Partner not found"
-          }
-        }
-      }
-    },
-    "/admin/register": {
-      "post": {
-        "summary": "Register admin",
-        "description": "Creates a new admin account. Does **not** create a session.",
-        "tags": [
-          "Admin"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "example": "admin2@test.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "admin"
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "Admin User"
-                  }
-                },
-                "required": [
-                  "email",
-                  "password",
-                  "name"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "admin": {
-                      "type": "object",
-                      "description": "The Admin model (ID, UserID, Name, CreatedAt)"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Email already exists"
           }
         }
       }
