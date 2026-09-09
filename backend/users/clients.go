@@ -67,8 +67,16 @@ func HandleClientRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	session, err := server.CreateSession(user.ID)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
+	}
+
+	server.SetSessionCookie(w, session)
+
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"client": client,
 	})

@@ -48,6 +48,8 @@ export interface PartnerTransaction {
   ID: number
   SenderUserID: number
   ReceiverUserID: number
+  SenderName: string
+  ReceiverName: string
   Amount: number
   CreatedAt: string
   Comment: string | null
@@ -81,3 +83,33 @@ export interface PartnerDashboardResponse {
   transaction_count: number
   by_day: PartnerDashboardDayBucket[]
 }
+
+export interface PartnerRegistrationPayload {
+  business_name: string
+  siret: number
+  category: string
+  address: string
+  region: string
+  contact_email: string
+  password: string
+}
+
+export type PartnerStatus = 'pending' | 'approved' | 'rejected'
+
+  export interface OwnPartner {
+    ID: number
+    BusinessName: string
+    Siret: number
+    Category: string
+    Address: string
+    Region: string
+    Balance: number
+    Status: PartnerStatus
+    RejectReason: string | null
+    MinisterPick: boolean
+    CreatedAt: string
+  }
+
+  export interface OwnPartnerResponse {
+    partner: OwnPartner
+  }

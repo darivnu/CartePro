@@ -20,7 +20,7 @@ export function ClientRegisterPage() {
       { name, email, password },
       {
         onSuccess: () => {
-          navigate('/login', { replace: true })
+          navigate('/client', { replace: true })
         },
       },
     )
@@ -107,6 +107,12 @@ export function ClientRegisterPage() {
           Already have an account?
           <Link to="/login" className="underline">
             Log in
+          </Link>
+        </div>
+        <div className="flex items-center gap-1.5 text-body-strong font-sans text-ink-900">
+          Own a business?
+          <Link to="/partner/register" className="underline">
+            Register as a partner
           </Link>
         </div>
         <div className="flex items-center gap-4">

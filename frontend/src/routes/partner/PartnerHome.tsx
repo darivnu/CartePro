@@ -4,7 +4,8 @@ import { useAuth, useLogout } from '../../auth/useAuth'
 import { Wordmark } from '@/components/Wordmark'
 import { SimulationNotice } from '@/components/SimulationNotice'
 import { QrScanner } from '@/components/QrScanner'
-import { useCollectPayment, useOwnTransactions } from '../../partners/usePartnersData'
+import { useCollectPayment, useOwnTransactions, useOwnPartner } from '../../partners/usePartnersData'
+import type { PartnerStatus } from '../../types/partner'
 import { formatCents, parseEurosToCents } from '../../lib/money'
 import { ApiError } from '../../api/client'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,12 @@ const TRANSACTION_TYPE_LABELS: Record<string, string> = {
   debit: 'Payment',
   topup: 'Top-up',
   reversal: 'Reversal',
+}
+
+const STATUS_COLORS: Record<PartnerStatus, string> = {
+  pending: 'text-pending-600',
+  approved: 'text-success-600',
+  rejected: 'text-danger-600',
 }
 
 function toRfc3339Start(date: string) {
@@ -68,6 +75,10 @@ export function PartnerHome() {
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [page, setPage] = useState(1)
+
+  const ownPartner = useOwnPartner()
+  const status = ownPartner.data?.partner.Status
+  const isApproved = status === 'approved'
 
   const transactions = useOwnTransactions({
     page,
@@ -143,7 +154,19 @@ export function PartnerHome() {
       <div className="mx-auto flex max-w-sm flex-col gap-6">
         <h1 className="sr-only">CartePro — partner dashboard</h1>
         <div className="flex items-center justify-between">
-          <Wordmark />
+          <div className="flex items-center gap-2">
+            <Wordmark />
+            {status && (
+              <p
+                className={cn(
+                  'text-status-caps uppercase font-display',
+                  STATUS_COLORS[status],
+                )}
+              >
+                {status}
+              </p>
+            )}
+          </div>
           <button
             onClick={() => logout.mutate()}
             className="text-label-caps uppercase font-display text-ink-600"
@@ -163,6 +186,7 @@ export function PartnerHome() {
         </div>
 
         <Button
+          disabled={!isApproved}
           onClick={() => handleDialogOpenChange(true)}
           className="h-11 w-full rounded-panel text-button uppercase font-display text-primary-foreground"
         >
@@ -216,6 +240,7 @@ export function PartnerHome() {
           <div className="flex flex-col gap-[2px]">
             {transactions.data.data.map((tx) => {
               const isReceived = tx.ReceiverUserID === Number(user.id)
+              const clientName = isReceived ? tx.SenderName : tx.ReceiverName
               return (
                 <div
                   key={tx.ID}
@@ -223,10 +248,10 @@ export function PartnerHome() {
                 >
                   <div className="flex flex-col gap-1">
                     <p className="text-body-strong font-sans text-ink-900">
-                      {TRANSACTION_TYPE_LABELS[tx.Type] ?? tx.Type}
+                      {clientName}
                     </p>
                     <p className="text-caption font-sans text-ink-600">
-                      {new Date(tx.CreatedAt).toLocaleDateString('fr-FR')}
+                      {TRANSACTION_TYPE_LABELS[tx.Type] ?? tx.Type} · {new Date(tx.CreatedAt).toLocaleDateString('fr-FR')}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">

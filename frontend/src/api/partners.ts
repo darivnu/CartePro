@@ -6,6 +6,8 @@ import type {
   ValidateQrResponse,
   PartnerTransactionsResponse,
   PartnerDashboardResponse,
+  PartnerRegistrationPayload,
+  OwnPartnerResponse,
 } from '../types/partner';
 
 export interface GetPartnersParams {
@@ -70,4 +72,12 @@ export function getOwnDashboard(params: GetOwnDashboardParams = {}) {
   if (to) query.set('to', to);
 
   return apiFetch<PartnerDashboardResponse>(`/partners/me/dashboard?${query.toString()}`);
+}
+
+export function registerPartner(payload: PartnerRegistrationPayload) {
+  return apiFetch<void>('/partners/register', { method: 'POST', body: payload })
+}
+
+export function getOwnPartner() {
+  return apiFetch<OwnPartnerResponse>('/partners/me');
 }

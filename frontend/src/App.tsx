@@ -7,6 +7,7 @@ import { PartnerHome } from './routes/partner/PartnerHome'
 import { PartnerDashboard } from './routes/partner/PartnerDashboard'
 import { LoginPage } from './routes/LoginPage'
 import { ClientRegisterPage } from './routes/ClientRegisterPage'
+import { PartnerRegisterPage } from './routes/partner/PartnerRegister'
 import { TermsOfUse } from './routes/TermsOfUse'
 import { AccessibilityStatement } from './routes/AccessibilityStatement'
 import { RootRedirect } from './routes/RootRedirect'
@@ -80,6 +81,9 @@ function App() {
       />
       <Route path="/register"
       element={<ClientRegisterPage />}
+      />
+      <Route path="/partner/register"
+      element={<PartnerRegisterPage />}
       />
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/accessibility" element={<AccessibilityStatement />} />

@@ -39,7 +39,7 @@ func NewRouter() *http.ServeMux {
 	mux.HandleFunc("GET /clients/me/transactions", users.HandleGetClientOwnTransactions)
 
 	//admin
-	mux.HandleFunc("POST /admin/register", users.HandleAdminRegistration)
+	//mux.HandleFunc("POST /admin/register", users.HandleAdminRegistration)
 	mux.HandleFunc("POST /admin/partners/{id}/approve", users.HandleApprovePartner)
 	mux.HandleFunc("POST /admin/topups", users.HandleAdminTopups)
 	mux.HandleFunc("GET /admin/partners", users.HandleGetAdminPartners)
@@ -53,5 +53,10 @@ func NewRouter() *http.ServeMux {
 
 	//external
 	mux.HandleFunc("GET /api/v1/employees/{id}/balance", users.HandleExternalIntegrationBalanceClientGetter)
+
+	//docs
+	mux.HandleFunc("GET /docs/doc.json", ServeSwaggerSpec)
+	mux.HandleFunc("GET /docs/", ServeSwaggerUI)
+
 	return mux
 }

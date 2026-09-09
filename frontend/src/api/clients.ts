@@ -10,7 +10,8 @@ interface RawTransaction {
   Type: 'debit' | 'topup'
   Amount: number
   CreatedAt: string
-  Partner: { ID: number; BusinessName: string } | null
+  SenderName: string
+  ReceiverName: string
 }
 
 interface RawTransactionsResponse {
@@ -23,12 +24,15 @@ function normalizeTransaction(raw: RawTransaction): Transaction {
     ? raw.CreatedAt
     : new Date(0).toISOString()
 
+  // a debit's counterparty is whoever received it (the partner); a top-up has no partner
+  const partnerName = raw.Type === 'debit' ? raw.ReceiverName : null
+
   return {
     id: raw.ID,
     type: raw.Type,
     amount: raw.Amount,
     created_at: createdAt,
-    partner: raw.Partner ? { id: raw.Partner.ID, business_name: raw.Partner.BusinessName } : null,
+    partner: partnerName ? { business_name: partnerName } : null,
   }
 }
 
