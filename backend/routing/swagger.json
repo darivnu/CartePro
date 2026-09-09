@@ -1,0 +1,1732 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CartePro API",
+    "version": "1.0.0",
+    "description": "CartePro lunch-card management API.\n\nAll amounts are stored and returned in **euro-cents** (integer). Divide by 100 to get euros.\n\n## Authentication\n\nMost endpoints require a valid session cookie named `session_token`.\nUse the **Authorize** button below and paste the token value, or call `POST /auth/login` first \u2014 the cookie is set automatically and Swagger UI will send it on subsequent requests.\nUnauthenticated endpoints:\n- `POST /auth/login`\n- `POST /clients/register`\n- `POST /partners/register`\n- `POST /admin/register`\n- `GET /partners`\n- `GET /partners/{id}`\n- `GET /api/v1/employees/{id}/balance` (uses `X-Api-Key` header)"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Local development (proxied through nginx)"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login",
+        "description": "Logs in with email/password. On success a `session_token` cookie is set \u2014 Swagger UI will capture it automatically.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "admin@test.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "admin"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK \u2013 session cookie set in `Set-Cookie` header",
+            "headers": {
+              "Set-Cookie": {
+                "description": "`session_token=<value>; Path=/; HttpOnly; SameSite=Lax`",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "admin@test.com"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "admin"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "description": "Ends the current session. Requires a valid session cookie.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content \u2013 session deleted and cookie cleared"
+          },
+          "401": {
+            "description": "No active session"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "Get current user",
+        "description": "Returns the currently authenticated user's id, email and role.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "admin@test.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "admin"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No active session"
+          }
+        }
+      }
+    },
+    "/clients/register": {
+      "post": {
+        "summary": "Register client",
+        "description": "Creates a new client account. Does **not** create a session (login separately afterwards).",
+        "tags": [
+          "Client"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "client@test.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "client"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Jean Dupont"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "client": {
+                      "type": "object",
+                      "properties": {
+                        "ID": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "UserID": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "Name": {
+                          "type": "string",
+                          "example": "Jean Dupont"
+                        },
+                        "Balance": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "CreatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already exists"
+          }
+        }
+      }
+    },
+    "/clients/me/balance": {
+      "get": {
+        "summary": "Get client balance",
+        "description": "Returns the authenticated client's balance in euro-cents.",
+        "tags": [
+          "Client"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "integer",
+                      "example": 5000,
+                      "description": "Balance in euro-cents (\u20ac50.00)"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/clients/me/transactions": {
+      "get": {
+        "summary": "Get client transactions",
+        "description": "Paginated transaction history for the authenticated client.",
+        "tags": [
+          "Client"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "RFC3339 start date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "RFC3339 end date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TransactionResponse"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "total_pages": {
+                          "type": "integer"
+                        },
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/clients/me/qrcode": {
+      "post": {
+        "summary": "Generate QR code",
+        "description": "Generates a short-lived (5 min) signed QR payment token for the authenticated client.",
+        "tags": [
+          "Client"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "Hex-encoded random token stored server-side"
+                    },
+                    "qr_payload": {
+                      "type": "string",
+                      "description": "Signed payload to encode in the QR image"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/partners/register": {
+      "post": {
+        "summary": "Register partner",
+        "description": "Registers a new partner account (status: `pending`). On success a session is created and the `session_token` cookie is set.",
+        "tags": [
+          "Partner"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "business_name": {
+                    "type": "string",
+                    "example": "Le Bistrot Parisien"
+                  },
+                  "siret": {
+                    "type": "integer",
+                    "example": 12345678901234
+                  },
+                  "category": {
+                    "type": "string",
+                    "example": "restaurant"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "12 rue de Rivoli, Paris"
+                  },
+                  "region": {
+                    "type": "string",
+                    "example": "\u00cele-de-France"
+                  },
+                  "contact_email": {
+                    "type": "string",
+                    "example": "partner@test.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "partner"
+                  }
+                },
+                "required": [
+                  "business_name",
+                  "siret",
+                  "category",
+                  "address",
+                  "region",
+                  "contact_email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created \u2013 partner created and session cookie set (no response body)"
+          },
+          "409": {
+            "description": "Email or Siret/Business Name already exists"
+          }
+        }
+      }
+    },
+    "/partners/me": {
+      "get": {
+        "summary": "Get own partner profile",
+        "description": "Returns the authenticated partner's full profile.",
+        "tags": [
+          "Partner"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "partner": {
+                      "type": "object",
+                      "description": "The full Partner model (includes ID, BusinessName, Siret, Category, Address, Region, Balance, Status, MinisterPick, CreatedAt, User.Email)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/partners/me/validate": {
+      "post": {
+        "summary": "Validate QR code",
+        "description": "Validates a QR payment token and creates a debit transaction.\nUses an `idempotency_key` \u2014 retrying with the same key returns the original transaction instead of processing twice.",
+        "tags": [
+          "Partner"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "qr_payload": {
+                    "type": "string",
+                    "example": "base64encodedpayload.signature",
+                    "description": "The qr_payload from the client's QR code"
+                  },
+                  "amount": {
+                    "type": "integer",
+                    "example": 850,
+                    "description": "Amount in euro-cents (\u20ac8.50)"
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000",
+                    "description": "Unique key to prevent double-processing"
+                  }
+                },
+                "required": [
+                  "qr_payload",
+                  "amount",
+                  "idempotency_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/TransactionResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired QR code"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "402": {
+            "description": "Insufficient balance"
+          },
+          "403": {
+            "description": "Partner is not approved"
+          },
+          "409": {
+            "description": "QR code already used"
+          }
+        }
+      }
+    },
+    "/partners/me/transactions": {
+      "get": {
+        "summary": "Get own partner transactions",
+        "description": "Paginated list of transactions involving the authenticated partner.",
+        "tags": [
+          "Partner"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TransactionResponse"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "total_pages": {
+                          "type": "integer"
+                        },
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/partners/me/dashboard": {
+      "get": {
+        "summary": "Get partner dashboard",
+        "description": "Financial summary for the authenticated partner, optionally filtered by date range.",
+        "tags": [
+          "Partner"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total_received": {
+                      "type": "integer",
+                      "description": "Total amount received in euro-cents"
+                    },
+                    "transaction_count": {
+                      "type": "integer"
+                    },
+                    "by_day": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-09-07"
+                          },
+                          "total_received": {
+                            "type": "integer"
+                          },
+                          "transaction_count": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/partners": {
+      "get": {
+        "summary": "List partners",
+        "description": "Public catalog of approved partners. No authentication required.",
+        "tags": [
+          "Shared"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search by BusinessName (LIKE match)"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ID": {
+                            "type": "integer"
+                          },
+                          "BusinessName": {
+                            "type": "string"
+                          },
+                          "Category": {
+                            "type": "string"
+                          },
+                          "Address": {
+                            "type": "string"
+                          },
+                          "Region": {
+                            "type": "string"
+                          },
+                          "MinisterPick": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partners/{id}": {
+      "get": {
+        "summary": "Get partner detail",
+        "description": "Returns public detail (including contact email) for a single partner. No authentication required.",
+        "tags": [
+          "Shared"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "partner": {
+                      "type": "object",
+                      "properties": {
+                        "ID": {
+                          "type": "integer"
+                        },
+                        "BusinessName": {
+                          "type": "string"
+                        },
+                        "Siret": {
+                          "type": "integer"
+                        },
+                        "Category": {
+                          "type": "string"
+                        },
+                        "Address": {
+                          "type": "string"
+                        },
+                        "Region": {
+                          "type": "string"
+                        },
+                        "Email": {
+                          "type": "string"
+                        },
+                        "Status": {
+                          "type": "string"
+                        },
+                        "MinisterPick": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Partner not found"
+          }
+        }
+      }
+    },
+    "/admin/partners": {
+      "get": {
+        "summary": "List partner registrations",
+        "description": "Lists all partner registrations with optional status filter. Requires admin session.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer",
+                          "description": "Count of items returned on this page (not a DB count)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/admin/partners/{id}/approve": {
+      "post": {
+        "summary": "Approve partner",
+        "description": "Approves a pending partner registration (status \u2192 `approved`).",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "partner": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Partner not found"
+          }
+        }
+      }
+    },
+    "/admin/partners/{id}/reject": {
+      "post": {
+        "summary": "Reject partner",
+        "description": "Rejects a pending partner registration (status \u2192 `rejected`). Reason is required.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "SIRET invalide"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "partner": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Partner not found"
+          }
+        }
+      }
+    },
+    "/admin/partners/{id}/status": {
+      "patch": {
+        "summary": "Change partner status",
+        "description": "Manually sets a partner's lifecycle status to `pending`, `approved`, or `rejected`.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "approved",
+                      "rejected"
+                    ],
+                    "example": "approved"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "partner": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Partner not found"
+          }
+        }
+      }
+    },
+    "/admin/partners/{id}/minister-pick": {
+      "patch": {
+        "summary": "Set or clear Minister's Pick",
+        "description": "Highlights or un-highlights a partner as \"Minister's Pick\" on the employee homepage.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "minister_pick": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "minister_pick"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "partner": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Partner not found"
+          }
+        }
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "summary": "Get national stats dashboard",
+        "description": "Returns national-level statistics for the admin dashboard. The optional `from`/`to` parameters only affect the `total_transaction_volume` field.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "active_partners": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "total_transaction_volume": {
+                      "type": "integer",
+                      "description": "Sum of all debit amounts in euro-cents"
+                    },
+                    "total_clients": {
+                      "type": "integer"
+                    },
+                    "list_of_regions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/admin/topups": {
+      "post": {
+        "summary": "Credit client balance",
+        "description": "Credits (tops up) a client's balance. Amount is in euro-cents and is capped at 1,000,000 (\u20ac10,000.00).",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "client_id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "amount": {
+                    "type": "integer",
+                    "example": 2000,
+                    "description": "Amount in euro-cents (\u20ac20.00)"
+                  },
+                  "comment": {
+                    "type": "string",
+                    "example": "September allowance"
+                  }
+                },
+                "required": [
+                  "client_id",
+                  "amount"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/TransactionResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Client not found"
+          }
+        }
+      }
+    },
+    "/admin/transactions/{id}/cancel": {
+      "post": {
+        "summary": "Cancel transaction",
+        "description": "Cancels a debit transaction by creating a compensating reversal. Only debit transactions can be cancelled; a transaction can only be cancelled once.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "Client contested the charge"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created \u2013 reversal transaction created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/TransactionResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Transaction not found"
+          },
+          "409": {
+            "description": "Transaction already cancelled"
+          }
+        }
+      }
+    },
+    "/admin/clients": {
+      "get": {
+        "summary": "List clients",
+        "description": "Lists all clients with their User info (paginated). User excludes PasswordHash.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer",
+                          "description": "Count of items returned on this page (not a DB count)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/admin/clients/{id}": {
+      "get": {
+        "summary": "Get client detail",
+        "description": "Returns a single client's detail plus all their transactions (newest first). The User sub-object excludes PasswordHash.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "client": {
+                      "type": "object"
+                    },
+                    "transactions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TransactionResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Client not found"
+          }
+        }
+      }
+    },
+    "/api/v1/employees/{id}/balance": {
+      "get": {
+        "summary": "Third-party (HRIS) balance lookup",
+        "description": "External integration endpoint. Authenticated via `X-Api-Key` header (not session cookie).",
+        "tags": [
+          "Integrations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "X-Api-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "very_secret_apikey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "client_id": {
+                      "type": "integer"
+                    },
+                    "user_id": {
+                      "type": "integer"
+                    },
+                    "balance": {
+                      "type": "integer",
+                      "description": "Balance in euro-cents"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "example": "euro"
+                    },
+                    "as_of": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (invalid or missing API key)"
+          },
+          "404": {
+            "description": "Client not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session_token",
+        "description": "Session token set by `POST /auth/login` (or registration endpoints). Click Authorize and paste the token value, or simply call the login endpoint first and Swagger UI will include the cookie automatically."
+      }
+    },
+    "schemas": {
+      "TransactionResponse": {
+        "type": "object",
+        "properties": {
+          "ID": {
+            "type": "integer",
+            "example": 1
+          },
+          "Amount": {
+            "type": "integer",
+            "example": 850,
+            "description": "Amount in euro-cents (\u20ac8.50)"
+          },
+          "ReceiverName": {
+            "type": "string",
+            "example": "Le Bistrot Parisien"
+          },
+          "ReceiverUserID": {
+            "type": "integer",
+            "example": 3
+          },
+          "SenderName": {
+            "type": "string",
+            "example": "Jean Dupont"
+          },
+          "SenderUserID": {
+            "type": "integer",
+            "example": 2
+          },
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Cancelled": {
+            "type": "boolean",
+            "example": false
+          },
+          "Type": {
+            "type": "string",
+            "example": "debit",
+            "enum": [
+              "debit",
+              "topup",
+              "reversal"
+            ]
+          },
+          "Comment": {
+            "type": "string",
+            "example": "September allowance"
+          },
+          "OriginalTransactionID": {
+            "type": "integer",
+            "nullable": true,
+            "example": null
+          }
+        }
+      }
+    }
+  }
+}
