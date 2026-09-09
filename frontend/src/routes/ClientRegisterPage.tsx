@@ -20,7 +20,7 @@ export function ClientRegisterPage() {
       { name, email, password },
       {
         onSuccess: () => {
-          navigate('/login', { replace: true })
+          navigate('/client', { replace: true })
         },
       },
     )

@@ -42,5 +42,9 @@ export function useLogout() {
 export function useRegisterClient() {
     return useMutation({
         mutationFn: ({ email, password, name }: { email: string; password: string; name: string }) => registerClient({ email, password, name }),
+        onSuccess: async () => {
+            const user = await getCurrentUser()
+            queryClient.setQueryData(['me'], user)
+        },
     })
 }
